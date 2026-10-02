@@ -1,0 +1,27 @@
+// InstParseVersion: V1.02
+Start:
+SetDIEdge{IO=t_g.Safety1,EdgeType="riseEdge",Val=1}
+SetDIEdge{IO=t_g.Safety2,EdgeType="riseEdge",Val=1}
+--Posizionamento iniziale
+MovJ{P=t_l.P0}
+MovJ{P=t_l.take}
+Wait{T=1000}
+SetDO{IO=t_g.Gripper,Val=0}
+Wait{T=1000}
+MovJ{P=t_l.triangle_1}
+Wait{T=1000}
+--Primo lato: V1 → V2 (movimento lineare per tracciare il lato)
+MovL{P=t_l.triangle_2}
+Wait{T=1000}
+--Secondo lato: V2 → V3
+MovL{P=t_l.triangle_3}
+Wait{T=1000}
+MovJ{P=t_l.leave}
+Wait{T=1000}
+SetDO{IO=t_g.Gripper,Val=1}
+--Terzo lato: V3 → V1 (ritorna al primo vertice)
+MovL{P=t_l.triangle_1}
+Wait{T=500}
+--Ritorna a posizione iniziale
+MovJ{P=t_l.triangle_1}
+End;
