@@ -12,7 +12,7 @@ This repository contains the material and resources for a two-phase robotics lab
 The robot is programmed and operated through the available software environment, while the vision system is used to acquire and process camera data for the robotic application.
 
 ## Useful info
-- *Workspace import*: File -> Import Workspace -> <your_ws_name> -> iER - V3.03 - Basic -> File Path containing the _global.erd etc. -> Import
+- *Workspace import*: File -> Import Workspace -> <your_ws_name> -> iER - V3.03 - Basic -> File Path containing the <project_name>.ers -> Import
 
 ---
 ## Phase 1 - Pick And Place
