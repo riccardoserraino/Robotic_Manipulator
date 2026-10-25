@@ -1,0 +1,76 @@
+Start:
+--=== Configurazione camera ===
+--Fake su controller virtuale: "127.0.0.1" | Camera reale: "192.168.100.100"
+t_p.S_IP_Camera.value = "127.0.0.1"
+t_p.I_Porta_Camera.value = 8192
+--Stato iniziale
+t_p.N_PRESI.value = 0
+t_p.CONTINUA.value = 1
+--Pose di approccio (stessa posa, z aumentata)
+t_g.PRESA_SU_1 = t_g.PRESA_1
+t_g.PRESA_SU_1.z = t_g.PRESA_1.z + t_p.Z_APPROCCIO.value
+t_g.PRESA_SU_2 = t_g.PRESA_2
+t_g.PRESA_SU_2.z = t_g.PRESA_2.z + t_p.Z_APPROCCIO.value
+t_g.PRESA_SU_3 = t_g.PRESA_3
+t_g.PRESA_SU_3.z = t_g.PRESA_3.z + t_p.Z_APPROCCIO.value
+t_g.PRESA_SU_4 = t_g.PRESA_4
+t_g.PRESA_SU_4.z = t_g.PRESA_4.z + t_p.Z_APPROCCIO.value
+t_g.PRESA_SU_5 = t_g.PRESA_5
+t_g.PRESA_SU_5.z = t_g.PRESA_5.z + t_p.Z_APPROCCIO.value
+t_g.PRESA_SU_6 = t_g.PRESA_6
+t_g.PRESA_SU_6.z = t_g.PRESA_6.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_1 = t_g.FORO_1
+t_g.FORO_SU_1.z = t_g.FORO_1.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_2 = t_g.FORO_2
+t_g.FORO_SU_2.z = t_g.FORO_2.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_3 = t_g.FORO_3
+t_g.FORO_SU_3.z = t_g.FORO_3.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_4 = t_g.FORO_4
+t_g.FORO_SU_4.z = t_g.FORO_4.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_5 = t_g.FORO_5
+t_g.FORO_SU_5.z = t_g.FORO_5.z + t_p.Z_APPROCCIO.value
+t_g.FORO_SU_6 = t_g.FORO_6
+t_g.FORO_SU_6.z = t_g.FORO_6.z + t_p.Z_APPROCCIO.value
+--Offset relativi per discesa e risalita
+t_p.D_DOWN.dz = -t_p.Z_APPROCCIO.value
+t_p.D_UP.dz = t_p.Z_APPROCCIO.value
+--Home e pinza aperta
+MovJ{P=t_g.pose_home}
+SetDO{IO=t_g.Gripper,Val=1}
+Wait{T=500}
+--Open socket communication with the camera
+SocketCreate{socketName=t_p.Com_Visione,IP=t_p.S_IP_Camera.value,Port=t_p.I_Porta_Camera.value,Ret=t_p.I_StatoCom}
+IF t_p.I_StatoCom.value == 0 THEN
+    --Clean buffer
+    SocketResetBuf{socketName=t_p.Com_Visione}
+    --Clean response variable
+    t_p.S_RispostaVisione.value = t_p.S_Vuota.value
+    --Select camera recipe
+    SocketSendStr{socketName=t_p.Com_Visione,stringData="scheme CheckPresence",Ret=t_p.I_StatoMess}
+    --Check recipe change was sent correctly
+    IF t_p.I_StatoMess.value == 0 THEN
+        Wait{T=250}
+        --Get response from camera about recipe loaded
+        SocketReadStr{socketName=t_p.Com_Visione,StrValue=t_p.S_RispostaVisione,WTime=10000,Ret=t_p.I_StatoRisposta}
+        IF t_p.I_StatoRisposta.value == 0 THEN
+            --Check camera answered OK
+            t_p.I_Risultato.value = strcmp ( t_p.S_RispostaVisione.value , t_p.S_SchemeOK.value )
+            IF t_p.I_Risultato.value == 0 THEN
+                SetRtInfo{msg="RECIPE LOADED",eid=70003}
+            ELSE
+                SetRtInfo{msg="WRONG RESPONSE FROM RECIPE CHANGE",eid=70003}
+                t_p.CONTINUA.value = 0
+            ENDIF
+        ELSE
+            SetRtInfo{msg="NO RESPONSE FROM RECIPE CHANGE",eid=70003}
+            t_p.CONTINUA.value = 0
+        ENDIF
+    ELSE
+        SetRtInfo{msg="ERROR WHILE SENDING RECIPE CHANGE",eid=70003}
+        t_p.CONTINUA.value = 0
+    ENDIF
+ELSE
+    SetRtInfo{msg="ERROR COMMUNICATION WITH VISION",eid=70002}
+    t_p.CONTINUA.value = 0
+ENDIF
+End;

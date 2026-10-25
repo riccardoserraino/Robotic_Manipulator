@@ -1,0 +1,51 @@
+Dati_Array={Demo1|CercaCilindro,Demo1|CercaCilindro,Demo1|main,Demo1|main,Demo1|main,}
+Dati_Array ={Demo1|LeggiVisione,}
+FORO_1={Demo1|Inizializza,Demo1|main,}
+FORO_2={Demo1|Inizializza,Demo1|main,}
+FORO_3={Demo1|Inizializza,Demo1|main,}
+FORO_4={Demo1|Inizializza,Demo1|main,}
+FORO_5={Demo1|Inizializza,Demo1|main,}
+FORO_6={Demo1|Inizializza,Demo1|main,}
+FORO_SU_1={Demo1|Inizializza,Demo1|main,}
+FORO_SU_1 = G={Demo1|Inizializza,}, G={Demo1|main,}
+FORO_SU_2={Demo1|Inizializza,Demo1|main,}
+FORO_SU_2 = G={Demo1|Inizializza,}, G={Demo1|main,}
+FORO_SU_3={Demo1|Inizializza,Demo1|main,}
+FORO_SU_3 = G={Demo1|Inizializza,}, G={Demo1|main,}
+FORO_SU_4={Demo1|Inizializza,Demo1|main,}
+FORO_SU_4 = G={Demo1|Inizializza,}, G={Demo1|main,}
+FORO_SU_5={Demo1|Inizializza,Demo1|main,}
+FORO_SU_5 = G={Demo1|Inizializza,}, G={Demo1|main,}
+FORO_SU_6={Demo1|Inizializza,Demo1|main,}
+FORO_SU_6 = G={Demo1|Inizializza,}, G={Demo1|main,}
+Gripper={Demo1|Inizializza,Demo1|main,Demo1|main,Demo1|main,test2|triangle,test2|triangle,Demo1|PresaInserimento,Demo1|PresaInserimento,}
+PRESA[1]={Demo1|test_arr,Demo1|test_arr,}
+PRESA_1={Demo1|Inizializza,Demo1|main,}
+PRESA_2={Demo1|Inizializza,Demo1|main,}
+PRESA_3={Demo1|Inizializza,Demo1|main,}
+PRESA_4={Demo1|Inizializza,Demo1|main,}
+PRESA_5={Demo1|Inizializza,Demo1|main,}
+PRESA_6={Demo1|Inizializza,Demo1|main,}
+PRESA_SU[1]={Demo1|test_arr,}
+PRESA_SU[1] = G={Demo1|test_arr,}
+PRESA_SU_1={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_1 = G={Demo1|Inizializza,}, G={Demo1|main,}
+PRESA_SU_2={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_2 = G={Demo1|Inizializza,}, G={Demo1|main,}
+PRESA_SU_3={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_3 = G={Demo1|Inizializza,}, G={Demo1|main,}
+PRESA_SU_4={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_4 = G={Demo1|Inizializza,}, G={Demo1|main,}
+PRESA_SU_5={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_5 = G={Demo1|Inizializza,}, G={Demo1|main,}
+PRESA_SU_6={Demo1|Inizializza,Demo1|main,}
+PRESA_SU_6 = G={Demo1|Inizializza,}, G={Demo1|main,}
+Safety1={test2|triangle,}
+Safety2={test2|triangle,}
+W_FORO_SU={Demo1|PresaInserimento,Demo1|main,}
+W_FORO_SU = G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}
+W_PRESA={Demo1|PresaInserimento,Demo1|main,}
+W_PRESA = G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}
+W_PRESA_SU={Demo1|PresaInserimento,Demo1|PresaInserimento,Demo1|main,Demo1|main,}
+W_PRESA_SU = G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|PresaInserimento,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}, G={Demo1|main,}
+pose_home={Demo1|Inizializza,Demo1|main,Demo1|main,Demo1|PresaInserimento,}

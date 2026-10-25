@@ -1,0 +1,52 @@
+Start:
+--Selezione pose dello slot N
+IF t_p.N.value == 1 THEN
+    t_g.W_PRESA = t_g.PRESA_1
+    t_g.W_PRESA_SU = t_g.PRESA_SU_1
+    t_g.W_FORO_SU = t_g.FORO_SU_1
+ENDIF
+IF t_p.N.value == 2 THEN
+    t_g.W_PRESA = t_g.PRESA_2
+    t_g.W_PRESA_SU = t_g.PRESA_SU_2
+    t_g.W_FORO_SU = t_g.FORO_SU_2
+ENDIF
+IF t_p.N.value == 3 THEN
+    t_g.W_PRESA = t_g.PRESA_3
+    t_g.W_PRESA_SU = t_g.PRESA_SU_3
+    t_g.W_FORO_SU = t_g.FORO_SU_3
+ENDIF
+IF t_p.N.value == 4 THEN
+    t_g.W_PRESA = t_g.PRESA_4
+    t_g.W_PRESA_SU = t_g.PRESA_SU_4
+    t_g.W_FORO_SU = t_g.FORO_SU_4
+ENDIF
+IF t_p.N.value == 5 THEN
+    t_g.W_PRESA = t_g.PRESA_5
+    t_g.W_PRESA_SU = t_g.PRESA_SU_5
+    t_g.W_FORO_SU = t_g.FORO_SU_5
+ENDIF
+IF t_p.N.value == 6 THEN
+    t_g.W_PRESA = t_g.PRESA_6
+    t_g.W_PRESA_SU = t_g.PRESA_SU_6
+    t_g.W_FORO_SU = t_g.FORO_SU_6
+ENDIF
+--Presa
+MovJ{P=t_g.W_PRESA_SU}
+MovL{P=t_g.W_PRESA}
+Wait{T=500}
+SetDO{IO=t_g.Gripper,Val=0}
+Wait{T=1000}
+MovL{P=t_g.W_PRESA_SU}
+--Sopra il foro, rotazione ultimo giunto, discesa e rilascio
+MovJ{P=t_g.W_FORO_SU}
+t_p.D_ROT.da6 = t_p.I_ANG.value
+MovJRel{P=t_p.D_ROT}
+MovLRel{P=t_p.D_DOWN,T="COORD"}
+Wait{T=500}
+SetDO{IO=t_g.Gripper,Val=1}
+Wait{T=500}
+MovLRel{P=t_p.D_UP,T="COORD"}
+--Home, fuori dal campo della camera
+MovJ{P=t_g.pose_home}
+t_p.N_PRESI.value = t_p.N_PRESI.value + 1
+End;

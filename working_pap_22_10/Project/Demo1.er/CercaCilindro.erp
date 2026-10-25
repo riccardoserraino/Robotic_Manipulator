@@ -1,0 +1,22 @@
+Start:
+--Primo cilindro presente da 1 a 6 (N = 0 se nessuno)
+t_p.N.value = 0
+t_p.J.value = 1
+FOR t_p.K.value = 1 , t_p.K.value <= 11 , t_p.K.value = t_p.K.value + 2 DO
+    IF t_p.N.value == 0 THEN
+        IF t_g.Dati_Array.value [ t_p.K.value ]  == 1 THEN
+            t_p.N.value = t_p.J.value
+            t_p.I_IDX.value = t_p.K.value + 1
+            t_p.I_ANG.value = t_g.Dati_Array.value [ t_p.I_IDX.value ]
+        ENDIF
+    ENDIF
+    t_p.J.value = t_p.J.value + 1
+ENDFOR
+--Vassoio vuoto: fine ciclo
+IF t_p.N.value == 0 THEN
+    t_p.CONTINUA.value = 0
+    IF t_p.N_PRESI.value == 0 THEN
+        SetRtInfo{msg="Nessun cilindro rilevato",eid=70003}
+    ENDIF
+ENDIF
+End;
