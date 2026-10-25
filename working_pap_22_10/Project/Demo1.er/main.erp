@@ -1,0 +1,128 @@
+Start:
+--Globali CPOS teachate: PRESA_1..PRESA_6, FORO_1..FORO_6
+--Globali CPOS calcolate: PRESA_SU_1..PRESA_SU_6, FORO_SU_1..FORO_SU_6
+--Globali CPOS di lavoro: W_PRESA, W_PRESA_SU, W_FORO_SU
+--Programma: D_ROT -> DAPOS, D_DOWN e D_UP -> DCPOS, Z_APPROCCIO -> REAL
+--Dati_Array -> RealOneArray, Gripper -> DO, pose_home -> posa home
+--Progetto: K, J, N, I_ANG, N_PRESI, CONTINUA -> INT
+--Calcolo pose di approccio (stessa posa, z aumentata)
+t_g.PRESA_SU_1 = t_g.PRESA_1
+t_g.PRESA_SU_1.z = t_g.PRESA_1.z + t_l.Z_APPROCCIO.value
+t_g.PRESA_SU_2 = t_g.PRESA_2
+t_g.PRESA_SU_2.z = t_g.PRESA_2.z + t_l.Z_APPROCCIO.value
+t_g.PRESA_SU_3 = t_g.PRESA_3
+t_g.PRESA_SU_3.z = t_g.PRESA_3.z + t_l.Z_APPROCCIO.value
+t_g.PRESA_SU_4 = t_g.PRESA_4
+t_g.PRESA_SU_4.z = t_g.PRESA_4.z + t_l.Z_APPROCCIO.value
+t_g.PRESA_SU_5 = t_g.PRESA_5
+t_g.PRESA_SU_5.z = t_g.PRESA_5.z + t_l.Z_APPROCCIO.value
+t_g.PRESA_SU_6 = t_g.PRESA_6
+t_g.PRESA_SU_6.z = t_g.PRESA_6.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_1 = t_g.FORO_1
+t_g.FORO_SU_1.z = t_g.FORO_1.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_2 = t_g.FORO_2
+t_g.FORO_SU_2.z = t_g.FORO_2.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_3 = t_g.FORO_3
+t_g.FORO_SU_3.z = t_g.FORO_3.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_4 = t_g.FORO_4
+t_g.FORO_SU_4.z = t_g.FORO_4.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_5 = t_g.FORO_5
+t_g.FORO_SU_5.z = t_g.FORO_5.z + t_l.Z_APPROCCIO.value
+t_g.FORO_SU_6 = t_g.FORO_6
+t_g.FORO_SU_6.z = t_g.FORO_6.z + t_l.Z_APPROCCIO.value
+--Offset relativi per discesa e risalita
+t_l.D_DOWN.dz = -t_l.Z_APPROCCIO.value
+t_l.D_UP.dz = t_l.Z_APPROCCIO.value
+--Home e pinza aperta
+MovJ{P=t_g.pose_home}
+SetDO{IO=t_g.Gripper,Val=1}
+Wait{T=500}
+--Connessione camera e caricamento ricetta
+SocketCreate{socketName=t_p.Com_Visione,IP="127.0.0.1",Port=8192,Ret=t_p.I_StatoMess}
+SocketSendStr{socketName=t_p.Com_Visione,stringData="scheme CheckPresence",Ret=t_p.I_StatoMess}
+SocketReadStr{socketName=t_p.Com_Visione,StrValue=t_p.S_RispostaVisione,WTime=10000,Ret=t_p.I_StatoRisposta}
+t_p.N_PRESI.value = 0
+t_p.CONTINUA.value = 1
+--Ciclo: nuova foto dopo ogni cilindro, esce quando non vede piu cilindri
+WHILE t_p.CONTINUA.value == 1 DO
+    --Lettura visione: presenza1;angolo1;presenza2;angolo2;...
+    SocketSendStr{socketName=t_p.Com_Visione,stringData="runonce",Ret=t_p.I_StatoMess}
+    SocketReadStr{socketName=t_p.Com_Visione,StrValue=t_p.S_RispostaVisione,WTime=10000,Ret=t_p.I_StatoRisposta}
+    SetRtInfo{msg=t_p.S_RispostaVisione.value,eid=70003}
+    t_p.INT0.value = TranStrToReal ( t_p.S_RispostaVisione.value , ";" , t_g.Dati_Array )
+    --Ricerca del primo cilindro presente da 1 a 6 (N = 0 se nessuno)
+    t_p.N.value = 0
+    t_p.J.value = 1
+    FOR t_p.K.value = 1 , t_p.K.value <= 11 , t_p.K.value = t_p.K.value + 2 DO
+        IF t_p.N.value == 0 THEN
+            IF t_g.Dati_Array.value [ t_p.K.value ]  == 1 THEN
+                t_p.N.value = t_p.J.value
+                t_p.I_IDX.value = t_p.K.value + 1
+                t_p.I_ANG.value = t_g.Dati_Array.value [ t_p.I_IDX.value ]
+            ENDIF
+        ENDIF
+        t_p.J.value = t_p.J.value + 1
+    ENDFOR
+    --Nessun cilindro visto: uscita dal ciclo
+    IF t_p.N.value == 0 THEN
+        t_p.CONTINUA.value = 0
+    ENDIF
+    --Cilindro trovato: presa e inserimento
+    IF t_p.N.value > 0 THEN
+        IF t_p.N.value == 1 THEN
+            t_g.W_PRESA = t_g.PRESA_1
+            t_g.W_PRESA_SU = t_g.PRESA_SU_1
+            t_g.W_FORO_SU = t_g.FORO_SU_1
+        ENDIF
+        IF t_p.N.value == 2 THEN
+            t_g.W_PRESA = t_g.PRESA_2
+            t_g.W_PRESA_SU = t_g.PRESA_SU_2
+            t_g.W_FORO_SU = t_g.FORO_SU_2
+        ENDIF
+        IF t_p.N.value == 3 THEN
+            t_g.W_PRESA = t_g.PRESA_3
+            t_g.W_PRESA_SU = t_g.PRESA_SU_3
+            t_g.W_FORO_SU = t_g.FORO_SU_3
+        ENDIF
+        IF t_p.N.value == 4 THEN
+            t_g.W_PRESA = t_g.PRESA_4
+            t_g.W_PRESA_SU = t_g.PRESA_SU_4
+            t_g.W_FORO_SU = t_g.FORO_SU_4
+        ENDIF
+        IF t_p.N.value == 5 THEN
+            t_g.W_PRESA = t_g.PRESA_5
+            t_g.W_PRESA_SU = t_g.PRESA_SU_5
+            t_g.W_FORO_SU = t_g.FORO_SU_5
+        ENDIF
+        IF t_p.N.value == 6 THEN
+            t_g.W_PRESA = t_g.PRESA_6
+            t_g.W_PRESA_SU = t_g.PRESA_SU_6
+            t_g.W_FORO_SU = t_g.FORO_SU_6
+        ENDIF
+        --Presa
+        MovJ{P=t_g.W_PRESA_SU}
+        MovL{P=t_g.W_PRESA}
+        Wait{T=500}
+        SetDO{IO=t_g.Gripper,Val=0}
+        Wait{T=1000}
+        --Sollevamento
+        MovL{P=t_g.W_PRESA_SU}
+        --Sopra il foro, rotazione dell'ultimo giunto e discesa
+        MovJ{P=t_g.W_FORO_SU}
+        t_l.D_ROT.da6 = t_p.I_ANG.value
+        MovJRel{P=t_l.D_ROT}
+        MovLRel{P=t_l.D_DOWN,T="COORD"}
+        Wait{T=500}
+        SetDO{IO=t_g.Gripper,Val=1}
+        Wait{T=500}
+        MovLRel{P=t_l.D_UP,T="COORD"}
+        --Ritorno in home, fuori dal campo della camera per la foto successiva
+        MovJ{P=t_g.pose_home}
+        t_p.N_PRESI.value = t_p.N_PRESI.value + 1
+    ENDIF
+ENDWHILE
+IF t_p.N_PRESI.value == 0 THEN
+    SetRtInfo{msg="Nessun cilindro rilevato",eid=70003}
+ENDIF
+SocketClose{socketName=t_p.Com_Visione,Ret=t_p.I_StatoMess}
+End;

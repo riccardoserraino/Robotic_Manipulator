@@ -1,0 +1,1 @@
+P:N##P:J##P:K##G:Dati_Array.value[P:K.value]##G:Dati_Array##P:I_IDX##P:I_ANG##G:Dati_Array.value[P:I_IDX.value]##P:CONTINUA##P:N_PRESI##

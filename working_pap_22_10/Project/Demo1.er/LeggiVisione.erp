@@ -1,0 +1,32 @@
+Start:
+--Clean camera response
+t_p.S_RispostaVisione.value = t_p.S_Vuota.value
+--Clean socket buffer
+SocketResetBuf{socketName=t_p.Com_Visione}
+Wait{T=50}
+--Run the recipe once
+SocketSendStr{socketName=t_p.Com_Visione,stringData="runonce",Ret=t_p.I_StatoMess}
+IF t_p.I_StatoMess.value == 0 THEN
+    Wait{T=250}
+    --Get recipe response: presenza1;angolo1;...;presenza6;angolo6
+    SocketReadStr{socketName=t_p.Com_Visione,StrValue=t_p.S_RispostaVisione,WTime=10000,Ret=t_p.I_StatoRisposta}
+    IF t_p.I_StatoRisposta.value == 0 THEN
+        --Allow printing the response on the TP
+        SetRtInfo{msg=t_p.S_RispostaVisione.value,eid=70003}
+        t_p.INT0.value = TranStrToReal ( t_p.S_RispostaVisione.value , ";" , t_g.Dati_Array )
+        --Check response contains 12 values
+        IF t_p.INT0.value == 12 THEN
+            SetRtInfo{msg="RESPONSE OK",eid=70003}
+        ELSE
+            SetRtInfo{msg="INVALID RESPONSE FORMAT",eid=70003}
+            t_p.CONTINUA.value = 0
+        ENDIF
+    ELSE
+        SetRtInfo{msg="NO RESPONSE FROM RUNONCE",eid=70003}
+        t_p.CONTINUA.value = 0
+    ENDIF
+ELSE
+    SetRtInfo{msg="ERROR WHILE SENDING RUNONCE",eid=70003}
+    t_p.CONTINUA.value = 0
+ENDIF
+End;

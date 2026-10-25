@@ -1,0 +1,1 @@
+P:S_RispostaVisione##P:S_Vuota##P:Com_Visione##P:I_StatoMess##P:I_StatoRisposta##P:INT0##G:Dati_Array##P:CONTINUA##
