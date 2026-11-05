@@ -1,0 +1,66 @@
+2={}
+3={}
+4={}
+5={Demo1|N_PRESI,}
+6={Demo1|CONTINUA,}
+7={}
+8={|GL|PRESA_SU_1 = G,}
+9={|GL|PRESA_SU_1,|GL|PRESA_1,Demo1|Z_APPROCCIO,}
+10={|GL|PRESA_SU_2 = G,}
+11={|GL|PRESA_SU_2,|GL|PRESA_2,Demo1|Z_APPROCCIO,}
+12={|GL|PRESA_SU_3 = G,}
+13={|GL|PRESA_SU_3,|GL|PRESA_3,Demo1|Z_APPROCCIO,}
+14={|GL|PRESA_SU_4 = G,}
+15={|GL|PRESA_SU_4,|GL|PRESA_4,Demo1|Z_APPROCCIO,}
+16={|GL|PRESA_SU_5 = G,}
+17={|GL|PRESA_SU_5,|GL|PRESA_5,Demo1|Z_APPROCCIO,}
+18={|GL|PRESA_SU_6 = G,}
+19={|GL|PRESA_SU_6,|GL|PRESA_6,Demo1|Z_APPROCCIO,}
+20={|GL|FORO_SU_1 = G,}
+21={|GL|FORO_SU_1,|GL|FORO_1,Demo1|Z_APPROCCIO,}
+22={|GL|FORO_SU_2 = G,}
+23={|GL|FORO_SU_2,|GL|FORO_2,Demo1|Z_APPROCCIO,}
+24={|GL|FORO_SU_3 = G,}
+25={|GL|FORO_SU_3,|GL|FORO_3,Demo1|Z_APPROCCIO,}
+26={|GL|FORO_SU_4 = G,}
+27={|GL|FORO_SU_4,|GL|FORO_4,Demo1|Z_APPROCCIO,}
+28={|GL|FORO_SU_5 = G,}
+29={|GL|FORO_SU_5,|GL|FORO_5,Demo1|Z_APPROCCIO,}
+30={|GL|FORO_SU_6 = G,}
+31={|GL|FORO_SU_6,|GL|FORO_6,Demo1|Z_APPROCCIO,}
+32={}
+33={Demo1|D_DOWN,Demo1|Z_APPROCCIO,}
+34={Demo1|D_UP,Demo1|Z_APPROCCIO,}
+35={}
+36={|GL|pose_home,}
+37={|GL|Gripper,}
+38={}
+39={}
+40={Demo1|Com_Visione,Demo1|S_IP_Camera,Demo1|I_Porta_Camera,Demo1|I_StatoCom,}
+41={Demo1|I_StatoCom,}
+42={}
+43={Demo1|Com_Visione,}
+44={}
+45={Demo1|S_RispostaVisione,Demo1|S_Vuota,}
+46={}
+47={Demo1|Com_Visione,Demo1|I_StatoMess,}
+48={}
+49={Demo1|I_StatoMess,}
+50={}
+51={}
+52={Demo1|Com_Visione,Demo1|S_RispostaVisione,Demo1|I_StatoRisposta,}
+53={Demo1|I_StatoRisposta,}
+54={}
+55={Demo1|S_RispostaVisione,}
+56={}
+57={}
+58={Demo1|CONTINUA,}
+59={}
+60={}
+61={}
+62={Demo1|CONTINUA,}
+63={}
+64={}
+65={}
+66={Demo1|CONTINUA,}
+67={}

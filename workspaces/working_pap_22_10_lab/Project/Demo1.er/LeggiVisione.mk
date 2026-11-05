@@ -1,0 +1,1 @@
+P:S_RispostaVisione##P:S_Vuota##P:Com_Visione##P:I_StatoMess##P:I_StatoRisposta##P:S_Prefisso##P:I_Risultato##P:S_SchemeOK##P:I_Lunghezza##P:INT0##G:Dati_Array##P:CONTINUA##

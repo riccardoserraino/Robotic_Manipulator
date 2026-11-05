@@ -1,0 +1,5 @@
+# ambiente conda locale (si ricrea con environment.yml)
+env/
+.env/
+__pycache__/
+*.pyc

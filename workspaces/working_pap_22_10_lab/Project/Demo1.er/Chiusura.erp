@@ -1,0 +1,6 @@
+Start:
+--Close connection only if it was opened
+IF t_p.I_StatoCom.value == 0 THEN
+    SocketClose{socketName=t_p.Com_Visione,Ret=t_p.I_StatoCom}
+ENDIF
+End;

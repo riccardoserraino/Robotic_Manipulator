@@ -1,0 +1,13 @@
+Start:
+CALL Inizializza
+WHILE t_p.CONTINUA.value == 1 DO
+    CALL LeggiVisione
+    IF t_p.CONTINUA.value == 1 THEN
+        CALL CercaCilindro
+        IF t_p.N.value > 0 THEN
+            CALL PresaInserimento
+        ENDIF
+    ENDIF
+ENDWHILE
+CALL Chiusura
+End;

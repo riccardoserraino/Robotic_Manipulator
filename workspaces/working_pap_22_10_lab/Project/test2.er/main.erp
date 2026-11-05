@@ -1,0 +1,5 @@
+Start:
+MovJ{P=t_p.pose_1}
+Wait{T=1000}
+MovJ{P=t_p.pose_2}
+End;
