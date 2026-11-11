@@ -1,0 +1,12 @@
+Start:
+--Parallelo di Test_Search (RUN): nessun movimento.
+--Dopo 1 s forza il fronte di salita di SDI_STOP (non cambia il valore: test fallito).
+Wait{T=1000}
+SetSimDIEdge{IO=t_p.SDI_STOP,EdgeType="riseEdge",Val=1}
+Wait{T=100}
+IF t_p.SDI_STOP.value == 1 THEN
+    SetRtInfo{msg="STOP INVIATO: SDI_STOP = 1",eid=70003}
+ELSE
+    SetRtInfo{msg="STOP INVIATO: SDI_STOP resta 0",eid=70003}
+ENDIF
+End;

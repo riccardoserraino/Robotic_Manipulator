@@ -1,0 +1,1 @@
+G:pose_home##P:SDI_STOP##P:PB6##S:V50##P:I_RSEARCH##

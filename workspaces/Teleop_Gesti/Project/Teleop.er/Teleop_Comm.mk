@@ -1,0 +1,1 @@
+P:Com_PC##P:S_IP_PC##P:I_Porta_PC##P:I_StatoCom##P:I_CommStato##P:TELEOP##P:S_Rx##P:S_Vuota##P:I_StatoMess##P:I_StatoRisposta##P:I_RX##P:I_Risultato##P:S_LEFT##P:S_RIGHT##P:S_FWD##P:S_BACK##P:S_UP##P:S_DOWN##P:S_STOP##P:S_QUIT##P:S_OPEN##P:S_CLOSE##P:I_CMD##

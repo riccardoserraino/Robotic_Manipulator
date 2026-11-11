@@ -1,0 +1,78 @@
+Start:
+--TEST BLENDING (diagnostica): nessun socket e nessun ciclo WHILE
+--Ogni prova: da home 6 MovL da 20 mm lungo +X (120 mm totali) poi ritorno in home.
+--Messaggio sul PAD all'inizio di ogni prova. Guardare se il robot si ferma tra i passi.
+--PROVA 1: FINE (riferimento: DEVE fermarsi a ogni passo)
+--PROVA 2: ABSOLUTE C10 (zona di sistema con vConst = 0)
+--PROVA 3: ABSOLUTE Z_COST (zona di progetto dis = 10 con vConst = 1)
+--PROVA 4: un solo MovL da 120 mm (riferimento: moto continuo)
+--
+MovJ{P=t_g.pose_home}
+Wait{T=1000}
+--
+--PROVA 1
+SetRtInfo{msg="PROVA 1 FINE",eid=70003}
+t_g.TARGET = t_g.pose_home
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+Wait{T=1500}
+MovJ{P=t_g.pose_home}
+Wait{T=1500}
+--
+--PROVA 2
+SetRtInfo{msg="PROVA 2 ABSOLUTE C10",eid=70003}
+t_g.TARGET = t_g.pose_home
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+Wait{T=1500}
+MovJ{P=t_g.pose_home}
+Wait{T=1500}
+--
+--PROVA 3
+SetRtInfo{msg="PROVA 3 ABSOLUTE Z_COST",eid=70003}
+t_g.TARGET = t_g.pose_home
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_p.Z_COST}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_p.Z_COST}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_p.Z_COST}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_p.Z_COST}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_p.Z_COST}
+t_g.TARGET.x = t_g.TARGET.x + 20
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_p.Z_COST}
+Wait{T=1500}
+MovJ{P=t_g.pose_home}
+Wait{T=1500}
+--
+--PROVA 4
+SetRtInfo{msg="PROVA 4 UN SOLO MOVL",eid=70003}
+t_g.TARGET = t_g.pose_home
+t_g.TARGET.x = t_g.TARGET.x + 120
+MovL{P=t_g.TARGET,V=t_s.V100,B="FINE",C=t_s.C10}
+Wait{T=1500}
+MovJ{P=t_g.pose_home}
+SetRtInfo{msg="TEST BLENDING FINITO",eid=70003}
+End;

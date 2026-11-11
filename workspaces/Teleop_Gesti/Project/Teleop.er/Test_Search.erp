@@ -1,0 +1,35 @@
+Start:
+--TEST ARRESTO MovLSearch (idea 1): moto lungo fermato da un ingresso virtuale
+--Il robot parte verso PB6 (home + 120 mm in X) a V50 = circa 2.4 s di moto.
+--Test_Search_Stop (lanciato con RUN) dopo 1 s scrive SDI_STOP.value = 1 (SimDI porta 1).
+--Se funziona il robot si ferma a meta' strada (circa 50 mm) e R vale 1.
+--Messaggi sul PAD: valore iniziale di SDI_STOP / risultato R / valore finale.
+MovJ{P=t_g.pose_home}
+Wait{T=1000}
+IF t_p.SDI_STOP.value == 0 THEN
+    SetRtInfo{msg="INIZIO: SDI_STOP = 0",eid=70003}
+ELSE
+    SetRtInfo{msg="INIZIO: SDI_STOP = 1",eid=70003}
+ENDIF
+RUN Test_Search_Stop
+MovLSearch{P=t_p.PB6,V=t_s.V50,Type="SIMDITrig",Number=1,Value=1,StopType="SOFTSTOP",StopDecScale=0.5,R=t_p.I_RSEARCH}
+IF t_p.I_RSEARCH.value == 0 THEN
+    SetRtInfo{msg="R=0: NESSUN ARRESTO",eid=70003}
+ENDIF
+IF t_p.I_RSEARCH.value == 1 THEN
+    SetRtInfo{msg="R = 1: FERMATO DAL SEGNALE",eid=70003}
+ENDIF
+IF t_p.I_RSEARCH.value == 2 THEN
+    SetRtInfo{msg="R=2: SEGNALE GIA' ATTIVO",eid=70003}
+ENDIF
+Wait{T=2000}
+--Riporta SDI_STOP a 0 per la prossima prova
+SetSimDIEdge{IO=t_p.SDI_STOP,EdgeType="downEdge",Val=1}
+Wait{T=200}
+IF t_p.SDI_STOP.value == 0 THEN
+    SetRtInfo{msg="FINE: SDI_STOP = 0",eid=70003}
+ELSE
+    SetRtInfo{msg="FINE: SDI_STOP = 1",eid=70003}
+ENDIF
+MovJ{P=t_g.pose_home}
+End;
