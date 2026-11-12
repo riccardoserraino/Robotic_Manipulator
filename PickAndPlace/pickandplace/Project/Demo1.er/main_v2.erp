@@ -1,0 +1,20 @@
+Start:
+--compute poses, go home, open socket, load recipe
+CALL Inizializza
+--if =1 keep working
+WHILE t_p.CONTINUA.value == 1 DO
+    --take a pic and parse 12 numbers
+    CALL LeggiVisione
+    --if photo is ok keep working
+    IF t_p.CONTINUA.value == 1 THEN
+        --which slot, which angle
+        CALL CercaCilindro
+        IF t_p.N.value > 0 THEN
+            --pick, rotate, insert, go home
+            CALL PresaInserimento
+        ENDIF
+    ENDIF
+ENDWHILE
+--close socket
+CALL Chiusura
+End;

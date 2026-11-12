@@ -1,0 +1,54 @@
+Start:
+--TELEOP V1 COMMUNICATION PROGRAM.
+--Started in parallel by Teleop_Gesti with RUN. Never load or start it by hand.
+--Socket only, NO motion here (programs started with RUN cannot move the robot).
+--Every cycle (about 200 ms)
+--  robot sends "REQ", the PC answers with ONE number (the command code, see Teleop_Gesti)
+--  the number is written in t_p.I_CMD, which Teleop_Gesti reads
+--  timeout or invalid answer gives 0, so the robot stops
+--t_p.I_CommState  0 connecting, 1 connected, -1 connection error
+--On quit (8) or on a connection error it sets TELEOP to 0 and closes the socket.
+SocketCreate{socketName=t_p.Com_PC,IP=t_p.S_PC_IP.value,Port=t_p.I_PC_PORT.value,Ret=t_p.I_SockRet}
+IF t_p.I_SockRet.value == 0 THEN
+    SetRtInfo{msg="TELEOP CONNECTED TO PC",eid=70003}
+    t_p.I_CommState.value = 1
+ELSE
+    SetRtInfo{msg="PC CONNECTION ERROR - check PC IP, port, firewall",eid=70002}
+    t_p.TELEOP.value = 0
+    t_p.I_CommState.value = -1
+ENDIF
+WHILE t_p.TELEOP.value == 1 DO
+    --Ask for the current command and wait up to 1 s for the answer
+    t_p.S_Rx.value = t_p.S_Empty.value
+    SocketResetBuf{socketName=t_p.Com_PC}
+    SocketSendStr{socketName=t_p.Com_PC,stringData="REQ",Ret=t_p.I_SendRet}
+    SocketReadStr{socketName=t_p.Com_PC,StrValue=t_p.S_Rx,WTime=1000,Ret=t_p.I_ReadRet}
+    --Decode into I_RX first, then ONE single write of I_CMD (no half values for the motion)
+    t_p.I_RX.value = 0
+    IF t_p.I_ReadRet.value == 0 THEN
+        t_p.I_RX.value = StrToI ( t_p.S_Rx.value )
+        IF t_p.I_RX.value < 0 THEN
+            t_p.I_RX.value = 0
+        ENDIF
+        IF t_p.I_RX.value > 14 THEN
+            t_p.I_RX.value = 0
+        ENDIF
+        IF t_p.I_RX.value == 0 THEN
+            SetRtInfo{msg="UNKNOWN COMMAND",eid=70003}
+        ENDIF
+    ELSE
+        SetRtInfo{msg="TIMEOUT PC",eid=70003}
+    ENDIF
+    t_p.I_CMD.value = t_p.I_RX.value
+    IF t_p.I_RX.value == 8 THEN
+        t_p.TELEOP.value = 0
+    ENDIF
+    --Timeout or invalid answer, short pause before asking again
+    IF t_p.I_RX.value == 0 THEN
+        Wait{T=100}
+    ENDIF
+ENDWHILE
+IF t_p.I_SockRet.value == 0 THEN
+    SocketClose{socketName=t_p.Com_PC,Ret=t_p.I_SockRet}
+ENDIF
+End;

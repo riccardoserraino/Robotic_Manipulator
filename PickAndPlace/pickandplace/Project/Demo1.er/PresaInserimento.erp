@@ -1,0 +1,58 @@
+Start:
+--Select the poses of slot N
+IF t_p.N.value == 1 THEN
+    t_g.W_PRESA = t_g.PRESA_1
+    t_g.W_PRESA_SU = t_g.PRESA_SU_1
+    t_g.W_FORO_SU = t_g.FORO_SU_1
+ENDIF
+IF t_p.N.value == 2 THEN
+    t_g.W_PRESA = t_g.PRESA_2
+    t_g.W_PRESA_SU = t_g.PRESA_SU_2
+    t_g.W_FORO_SU = t_g.FORO_SU_2
+ENDIF
+IF t_p.N.value == 3 THEN
+    t_g.W_PRESA = t_g.PRESA_3
+    t_g.W_PRESA_SU = t_g.PRESA_SU_3
+    t_g.W_FORO_SU = t_g.FORO_SU_3
+ENDIF
+IF t_p.N.value == 4 THEN
+    t_g.W_PRESA = t_g.PRESA_4
+    t_g.W_PRESA_SU = t_g.PRESA_SU_4
+    t_g.W_FORO_SU = t_g.FORO_SU_4
+ENDIF
+IF t_p.N.value == 5 THEN
+    t_g.W_PRESA = t_g.PRESA_5
+    t_g.W_PRESA_SU = t_g.PRESA_SU_5
+    t_g.W_FORO_SU = t_g.FORO_SU_5
+ENDIF
+IF t_p.N.value == 6 THEN
+    t_g.W_PRESA = t_g.PRESA_6
+    t_g.W_PRESA_SU = t_g.PRESA_SU_6
+    t_g.W_FORO_SU = t_g.FORO_SU_6
+ENDIF
+--Go above cylinder
+MovJ{P=t_g.W_PRESA_SU}
+--Go down slowly in a straight line
+MovL{P=t_g.W_PRESA,V=t_s.V30}
+Wait{T=500}
+--Close gripper
+SetDO{IO=t_g.Gripper,Val=0}
+Wait{T=1000}
+--Lift the cylinder straight up
+MovL{P=t_g.W_PRESA_SU}
+--Go above the hole, then rotate the last joint by the camera angle
+MovJ{P=t_g.W_FORO_SU}
+t_p.D_ROT.da6 = t_p.I_ANG.value
+MovJRel{P=t_p.D_ROT}
+--Insert the cylinder, already oriented
+MovLRel{P=t_p.D_DOWN,T="COORD",V=t_s.V30}
+Wait{T=500}
+--Release the cylinder
+SetDO{IO=t_g.Gripper,Val=1}
+Wait{T=500}
+--Go back up
+MovLRel{P=t_p.D_UP,T="COORD"}
+--Home position, outside the camera field of view
+MovJ{P=t_g.pose_home}
+t_p.N_PRESI.value = t_p.N_PRESI.value + 1
+End;

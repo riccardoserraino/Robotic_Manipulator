@@ -1,1 +1,0 @@
-P:S_IP_PC##P:I_Porta_PC##P:X_MIN##P:X_MAX##P:Y_MIN##P:Y_MAX##P:Z_MIN##P:Z_MAX##P:TELEOP##P:PINZA_ATT##G:pose_home##G:Gripper##G:TARGET##P:Com_PC##P:I_StatoCom##P:S_Rx##P:S_Vuota##P:I_StatoMess##P:I_StatoRisposta##P:N_VAL##G:Tele_Array##P:R_DX##P:R_DY##P:R_DZ##P:I_PINZA##P:I_STATO##

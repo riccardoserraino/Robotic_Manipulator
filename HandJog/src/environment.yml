@@ -1,0 +1,11 @@
+# Conda environment for the Teleop_v1 Python code (MediaPipe hand teleoperation)
+# Create once:   conda env create -f environment.yml
+# Update:        conda env update -f environment.yml --prune
+name: walteroperation
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - mediapipe==1.2.2   # also installs opencv-contrib-python, numpy, matplotlib

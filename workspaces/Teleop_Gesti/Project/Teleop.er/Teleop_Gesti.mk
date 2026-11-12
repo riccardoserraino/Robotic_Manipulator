@@ -1,1 +1,0 @@
-P:S_IP_PC##P:I_Porta_PC##P:R_PASSO##P:NX_MIN##P:NX_MAX##P:NY_MIN##P:NY_MAX##P:NZ_MIN##P:NZ_MAX##P:I_NX##P:I_NY##P:I_NZ##P:I_CMD##P:I_CommStato##P:TELEOP##P:PINZA_ATT##G:pose_home##G:Gripper##G:TARGET##P:I_MOSSA##P:I_MOSSO##S:V100##S:C10##

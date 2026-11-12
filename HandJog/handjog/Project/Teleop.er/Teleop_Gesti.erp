@@ -1,0 +1,166 @@
+Start:
+--TELEOP V1 MOTION PROGRAM. Load THIS program and press Start.
+--It starts Teleop_Comm in parallel (RUN, socket only, never start it by hand)
+--and asks Teleop_Region (CALL) if every new Cartesian target is inside the working region.
+--Command codes written by Teleop_Comm in t_p.I_CMD
+--1 left (+Y)  2 right (-Y)  3 forward (+X)  4 backward (-X)  5 up (+Z)  6 down (-Z)
+--7 stop  8 quit  9 open gripper  10 close gripper
+--11 J5 plus  12 J5 minus  13 J6 plus  14 J6 minus  0 nothing received (timeout)
+--Cartesian step = move the absolute target t_g.TARGET by R_STEP mm, MovL with blending C10.
+--WaitFinish 40 lets the program queue the next step while the robot is at 40 percent
+--of the current one, so steps join smoothly but never pile up.
+--Joint step = rotate J5 or J6 by a few degrees (MovJRel), then copy the real robot pose
+--into t_g.TARGET so the next Cartesian step keeps the new tool orientation.
+--------
+--==== SETTINGS (change here) ====
+--IP of the PC running Python. Virtual controller "127.0.0.1", real robot = PC IP on the robot network
+t_p.S_PC_IP.value = "127.0.0.1"
+t_p.I_PC_PORT.value = 9500
+--Cartesian step in mm
+t_p.R_STEP.value = 20.0
+--Joint steps in degrees and how many steps are allowed each side of home
+--J5 6 x 5 deg = 30 deg, J6 18 x 10 deg = 180 deg
+t_p.R_J5_STEP.value = 5.0
+t_p.R_J6_STEP.value = 10.0
+t_p.N5_MIN.value = -6
+t_p.N5_MAX.value = 6
+t_p.N6_MIN.value = -18
+t_p.N6_MAX.value = 18
+--------
+--==== START ====
+t_p.I_N5.value = 0
+t_p.I_N6.value = 0
+t_p.I_CMD.value = 0
+t_p.I_CommState.value = 0
+t_p.TELEOP.value = 1
+t_p.I_GRIP.value = 1
+t_p.I_WARN.value = 0
+MovJ{P=t_g.pose_home}
+SetDO{IO=t_g.Gripper,Val=1}
+Wait{T=500}
+--The target starts from home (same orientation and configuration as home)
+t_g.TARGET = t_g.pose_home
+--Start the communication program and wait until it is connected (1) or failed (-1)
+RUN Teleop_Comm
+WHILE t_p.I_CommState.value == 0 DO
+    Wait{T=50}
+ENDWHILE
+--------
+--==== MAIN LOOP ====
+WHILE t_p.TELEOP.value == 1 DO
+    --Copy the shared command once, Teleop_Comm can change it at any moment
+    t_p.I_MOVE.value = t_p.I_CMD.value
+    t_p.I_MOVED.value = 0
+    --------
+    --1) Cartesian step. Choose the direction of the step
+    t_p.R_DX.value = 0.0
+    t_p.R_DY.value = 0.0
+    t_p.R_DZ.value = 0.0
+    IF t_p.I_MOVE.value == 1 THEN
+        t_p.R_DY.value = t_p.R_STEP.value
+    ENDIF
+    IF t_p.I_MOVE.value == 2 THEN
+        t_p.R_DY.value = -t_p.R_STEP.value
+    ENDIF
+    IF t_p.I_MOVE.value == 3 THEN
+        t_p.R_DX.value = t_p.R_STEP.value
+    ENDIF
+    IF t_p.I_MOVE.value == 4 THEN
+        t_p.R_DX.value = -t_p.R_STEP.value
+    ENDIF
+    IF t_p.I_MOVE.value == 5 THEN
+        t_p.R_DZ.value = t_p.R_STEP.value
+    ENDIF
+    IF t_p.I_MOVE.value == 6 THEN
+        t_p.R_DZ.value = -t_p.R_STEP.value
+    ENDIF
+    --Build the candidate target, move only if it is inside the working region
+    IF t_p.I_MOVE.value >= 1 THEN
+        IF t_p.I_MOVE.value <= 6 THEN
+            t_p.NEXT = t_g.TARGET
+            t_p.NEXT.x = t_g.TARGET.x + t_p.R_DX.value
+            t_p.NEXT.y = t_g.TARGET.y + t_p.R_DY.value
+            t_p.NEXT.z = t_g.TARGET.z + t_p.R_DZ.value
+            CALL Teleop_Region
+            IF t_p.I_INSIDE.value == 1 THEN
+                t_g.TARGET = t_p.NEXT
+                MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
+                WaitFinish{Percent=40}
+                t_p.I_MOVED.value = 1
+                t_p.I_WARN.value = 0
+            ELSE
+                --Outside the region, show the message only once
+                IF t_p.I_WARN.value == 0 THEN
+                    SetRtInfo{msg="LIMIT - outside working region",eid=70003}
+                    t_p.I_WARN.value = 1
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+    --------
+    --2) Joint step for the wrist (J5) and the gripper rotation (J6), with step counters
+    t_p.I_JOINT.value = 0
+    t_p.D_JOINT.da5 = 0.0
+    t_p.D_JOINT.da6 = 0.0
+    IF t_p.I_MOVE.value == 11 THEN
+        IF t_p.I_N5.value < t_p.N5_MAX.value THEN
+            t_p.D_JOINT.da5 = t_p.R_J5_STEP.value
+            t_p.I_N5.value = t_p.I_N5.value + 1
+            t_p.I_JOINT.value = 1
+        ENDIF
+    ENDIF
+    IF t_p.I_MOVE.value == 12 THEN
+        IF t_p.I_N5.value > t_p.N5_MIN.value THEN
+            t_p.D_JOINT.da5 = -t_p.R_J5_STEP.value
+            t_p.I_N5.value = t_p.I_N5.value - 1
+            t_p.I_JOINT.value = 1
+        ENDIF
+    ENDIF
+    IF t_p.I_MOVE.value == 13 THEN
+        IF t_p.I_N6.value < t_p.N6_MAX.value THEN
+            t_p.D_JOINT.da6 = t_p.R_J6_STEP.value
+            t_p.I_N6.value = t_p.I_N6.value + 1
+            t_p.I_JOINT.value = 1
+        ENDIF
+    ENDIF
+    IF t_p.I_MOVE.value == 14 THEN
+        IF t_p.I_N6.value > t_p.N6_MIN.value THEN
+            t_p.D_JOINT.da6 = -t_p.R_J6_STEP.value
+            t_p.I_N6.value = t_p.I_N6.value - 1
+            t_p.I_JOINT.value = 1
+        ENDIF
+    ENDIF
+    IF t_p.I_JOINT.value == 1 THEN
+        MovJRel{P=t_p.D_JOINT,V=t_s.V30}
+        --Wait for the end of the rotation, then read the real pose into the target
+        WaitFinish{Percent=100}
+        GetCurCPos{P=t_g.TARGET}
+        t_p.I_MOVED.value = 1
+    ENDIF
+    --------
+    --3) Gripper, only when the state really changes (SetDO and Wait stop the motion)
+    IF t_p.I_MOVE.value == 9 THEN
+        IF t_p.I_GRIP.value == 0 THEN
+            SetDO{IO=t_g.Gripper,Val=1}
+            t_p.I_GRIP.value = 1
+            Wait{T=300}
+        ENDIF
+    ENDIF
+    IF t_p.I_MOVE.value == 10 THEN
+        IF t_p.I_GRIP.value == 1 THEN
+            SetDO{IO=t_g.Gripper,Val=0}
+            t_p.I_GRIP.value = 0
+            Wait{T=300}
+        ENDIF
+    ENDIF
+    --------
+    --4) Nothing moved (stop, limit, outside region, timeout). Short pause, do not spin empty
+    IF t_p.I_MOVED.value == 0 THEN
+        Wait{T=20}
+    ENDIF
+ENDWHILE
+--------
+--==== END ====
+--Teleop_Comm closes the socket by itself when TELEOP becomes 0
+MovJ{P=t_g.pose_home}
+End;

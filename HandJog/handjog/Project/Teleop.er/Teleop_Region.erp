@@ -1,0 +1,50 @@
+Start:
+--TELEOP V1 WORKING REGION.
+--Called by Teleop_Gesti with CALL before every Cartesian step (never start it by hand).
+--Input   t_p.NEXT       candidate TCP position
+--Output  t_p.I_INSIDE  1 inside the region, 0 outside (the step is skipped)
+--------
+--The region is an ELLIPSOID fixed to the home pose. A box would keep its corners,
+--and the corners are where the arm gets close to its singularities
+--  far and low corners  -> arm almost fully stretched (elbow singularity, end of reach)
+--  corners near the base -> wrist close to the J1 axis (shoulder singularity)
+--The ellipsoid cuts those corners and keeps a smooth margin everywhere.
+--------
+--Test used, with U = (x - centre x) / AX, V = (y - centre y) / AY, W = (z - centre z) / AZ
+--  inside when  U times U  plus  V times V  plus  W times W  is not more than 1
+--------
+--==== SETTINGS (change here) ====
+--Centre = home + offset, in mm. Home is about x 274, y 14, z 231
+t_p.R_CX_OFF.value = 60.0
+t_p.R_CY_OFF.value = 10.0
+t_p.R_CZ_OFF.value = -50.0
+--Semi axes in mm. With these values the region spans about
+--x 234 to 434, y -86 to 134, z 106 to 256 (check these extreme points with the pendant)
+t_p.R_AX.value = 100.0
+t_p.R_AY.value = 110.0
+t_p.R_AZ.value = 75.0
+--------
+--==== CHECK ====
+--X term
+t_p.R_U.value = t_p.NEXT.x - t_g.pose_home.x
+t_p.R_U.value = t_p.R_U.value - t_p.R_CX_OFF.value
+t_p.R_U.value = t_p.R_U.value / t_p.R_AX.value
+t_p.R_SUM.value = t_p.R_U.value * t_p.R_U.value
+--Y term
+t_p.R_U.value = t_p.NEXT.y - t_g.pose_home.y
+t_p.R_U.value = t_p.R_U.value - t_p.R_CY_OFF.value
+t_p.R_U.value = t_p.R_U.value / t_p.R_AY.value
+t_p.R_SQ.value = t_p.R_U.value * t_p.R_U.value
+t_p.R_SUM.value = t_p.R_SUM.value + t_p.R_SQ.value
+--Z term
+t_p.R_U.value = t_p.NEXT.z - t_g.pose_home.z
+t_p.R_U.value = t_p.R_U.value - t_p.R_CZ_OFF.value
+t_p.R_U.value = t_p.R_U.value / t_p.R_AZ.value
+t_p.R_SQ.value = t_p.R_U.value * t_p.R_U.value
+t_p.R_SUM.value = t_p.R_SUM.value + t_p.R_SQ.value
+--Result
+t_p.I_INSIDE.value = 0
+IF t_p.R_SUM.value <= 1.0 THEN
+    t_p.I_INSIDE.value = 1
+ENDIF
+End;

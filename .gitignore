@@ -1,0 +1,13 @@
+# local virtual environments (recreate them with setup.bat)
+*env/
+*.env/
+# Python cache
+__pycache__/
+*.pyc
+# logs written by the teleop scripts
+*.csv
+# editor settings (keep only the shared settings.json, which selects the walter venv)
+.vscode/*
+!.vscode/settings.json
+# virtual environment created by setup.bat
+walter/

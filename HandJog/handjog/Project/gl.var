@@ -1,0 +1,8 @@
+DO29={gruppo11|pick_cylinder,gruppo11|pick_cylinder,gruppo11|place_cylinder,gruppo11|place_cylinder,}
+Gripper={Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,}
+Socket0={gruppo11|cam_detection,gruppo11|cam_detection,gruppo11|cam_detection,gruppo11|cam_detection,gruppo11|cam_detection,gruppo11|cam_orientation,gruppo11|cam_orientation,gruppo11|cam_orientation,gruppo11|cam_orientation,gruppo11|cam_orientation,gruppo11|camera_setup,gruppo11|camera_setup,gruppo11|camera_setup,}
+TARGET={Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,}
+TARGET = G={Teleop|Teleop_Gesti,}
+TARGET by R_PASSO mm in the base frame={Teleop|Teleop_Gesti,}
+TOOL1={gruppo11|main,}
+pose_home={Teleop|Teleop_Gesti,Teleop|Teleop_Gesti,}

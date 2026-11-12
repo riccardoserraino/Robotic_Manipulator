@@ -1,1 +1,0 @@
-G:Safety1##G:Safety2##L:take##G:Gripper##L:triangle_1##L:triangle_2##L:triangle_3##L:leave##

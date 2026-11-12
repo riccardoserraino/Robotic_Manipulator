@@ -1,0 +1,1 @@
+P:R_CX_OFF##P:R_CY_OFF##P:R_CZ_OFF##P:R_AX##P:R_AY##P:R_AZ##P:R_U##P:NEXT##G:pose_home##P:R_SUM##P:R_SQ##P:I_INSIDE##

@@ -1,1 +1,0 @@
-P:I_MOSSO##G:pose_home##P:PB1##S:V100##S:C10##P:PB2##P:PB3##P:PB4##P:PB5##P:PB6##G:TARGET##
