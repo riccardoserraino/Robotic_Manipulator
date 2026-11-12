@@ -15,7 +15,7 @@ The robot is programmed and operated through the available software environment,
 
 ## Setup (once per PC)
 All the Python code of the project (fake camera of Phase 1, MediaPipe teleoperation of Phase 2)
-runs in one small virtual environment called **`walter`**, created by `setup.bat`.
+runs in one small virtual environment called **`walterai`**, created by `setup.bat`.
 
 1. **Python 3.12 or 3.13** installed from [python.org](https://www.python.org/downloads/), with
    *"Add python.exe to PATH"* ticked. Check in a terminal: `python --version`.
@@ -25,16 +25,16 @@ runs in one small virtual environment called **`walter`**, created by `setup.bat
    .\setup.bat
    ```
    A `.bat` file is already executable on Windows, nothing to enable. The first time it creates
-   the `walter` folder (the venv) and installs everything listed in `requirements.txt`
+   the `walterai` folder (the venv) and installs everything listed in `requirements.txt`
    (MediaPipe, OpenCV, NumPy); running it again only updates the packages.
 3. **Use it**
    ```bat
-   .\walter\Scripts\activate
-   python HandJog\src\teleop_hands.py
+   .\walterai\Scripts\activate
+   python HandJog\src\hand_tracker.py
    ```
-   The prompt starts with `(walter)` when it is active; `deactivate` to leave it.
+   The prompt starts with `(walterai)` when it is active; `deactivate` to leave it.
    In VS Code, open the `ws` folder: `.vscode/settings.json` already selects
-   `walter\Scripts\python.exe`, and new terminals activate it by themselves.
+   `walterai\Scripts\python.exe`, and new terminals activate it by themselves.
 
 Note: If Windows blocks the activation in PowerShell (*"running scripts is disabled"*), run once
 `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, or use a Command Prompt terminal.
