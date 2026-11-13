@@ -10,4 +10,4 @@ __pycache__/
 .vscode/*
 !.vscode/settings.json
 # virtual environment created by setup.bat
-walter/
+walterai/

@@ -46,7 +46,7 @@ Note: If Windows blocks the activation in PowerShell (*"running scripts is disab
 ```
 ws/
 ├── README.md                  
-├── setup.bat                  creates the walter venv and installs requirements.txt
+├── setup.bat                  creates the walterai venv and installs requirements.txt
 ├── requirements.txt           Python packages for the whole project
 ├── PickAndPlace/              PHASE 1
 │   ├── README.md              
