@@ -1,1 +1,1 @@
-P:R_CX_OFF##P:R_CY_OFF##P:R_CZ_OFF##P:R_AX##P:R_AY##P:R_AZ##P:R_U##P:NEXT##G:pose_home##P:R_SUM##P:R_SQ##P:I_INSIDE##
+P:R_CX_OFF##P:R_CY_OFF##P:R_CZ_OFF##P:R_RAD##P:R_X_MIN##P:R_X_MAX##P:R_Y_MIN##P:R_Y_MAX##P:R_Z_MIN##P:R_Z_MAX##P:I_OUT##P:R_U##P:NEXT##G:pose_home##P:R_SUM##P:R_SQ##P:I_INSIDE##

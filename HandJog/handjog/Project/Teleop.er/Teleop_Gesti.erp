@@ -11,7 +11,6 @@ Start:
 --of the current one, so steps join smoothly but never pile up.
 --Joint step = rotate J5 or J6 by a few degrees (MovJRel), then copy the real robot pose
 --into t_g.TARGET so the next Cartesian step keeps the new tool orientation.
---------
 --==== SETTINGS (change here) ====
 --IP of the PC running Python. Virtual controller "127.0.0.1", real robot = PC IP on the robot network
 t_p.S_PC_IP.value = "127.0.0.1"
@@ -26,7 +25,6 @@ t_p.N5_MIN.value = -6
 t_p.N5_MAX.value = 6
 t_p.N6_MIN.value = -18
 t_p.N6_MAX.value = 18
---------
 --==== START ====
 t_p.I_N5.value = 0
 t_p.I_N6.value = 0
@@ -45,13 +43,11 @@ RUN Teleop_Comm
 WHILE t_p.I_CommState.value == 0 DO
     Wait{T=50}
 ENDWHILE
---------
 --==== MAIN LOOP ====
 WHILE t_p.TELEOP.value == 1 DO
     --Copy the shared command once, Teleop_Comm can change it at any moment
     t_p.I_MOVE.value = t_p.I_CMD.value
     t_p.I_MOVED.value = 0
-    --------
     --1) Cartesian step. Choose the direction of the step
     t_p.R_DX.value = 0.0
     t_p.R_DY.value = 0.0
@@ -97,7 +93,6 @@ WHILE t_p.TELEOP.value == 1 DO
             ENDIF
         ENDIF
     ENDIF
-    --------
     --2) Joint step for the wrist (J5) and the gripper rotation (J6), with step counters
     t_p.I_JOINT.value = 0
     t_p.D_JOINT.da5 = 0.0
@@ -137,7 +132,6 @@ WHILE t_p.TELEOP.value == 1 DO
         GetCurCPos{P=t_g.TARGET}
         t_p.I_MOVED.value = 1
     ENDIF
-    --------
     --3) Gripper, only when the state really changes (SetDO and Wait stop the motion)
     IF t_p.I_MOVE.value == 9 THEN
         IF t_p.I_GRIP.value == 0 THEN
@@ -153,13 +147,11 @@ WHILE t_p.TELEOP.value == 1 DO
             Wait{T=300}
         ENDIF
     ENDIF
-    --------
     --4) Nothing moved (stop, limit, outside region, timeout). Short pause, do not spin empty
     IF t_p.I_MOVED.value == 0 THEN
         Wait{T=20}
     ENDIF
 ENDWHILE
---------
 --==== END ====
 --Teleop_Comm closes the socket by itself when TELEOP becomes 0
 MovJ{P=t_g.pose_home}

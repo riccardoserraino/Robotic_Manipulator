@@ -1,50 +1,65 @@
 Start:
---TELEOP V1 WORKING REGION.
+--TELEOP V1 WORKING REGION (sphere plus extra limits).
 --Called by Teleop_Gesti with CALL before every Cartesian step (never start it by hand).
---Input   t_p.NEXT       candidate TCP position
---Output  t_p.I_INSIDE  1 inside the region, 0 outside (the step is skipped)
---------
---The region is an ELLIPSOID fixed to the home pose. A box would keep its corners,
---and the corners are where the arm gets close to its singularities
---  far and low corners  -> arm almost fully stretched (elbow singularity, end of reach)
---  corners near the base -> wrist close to the J1 axis (shoulder singularity)
---The ellipsoid cuts those corners and keeps a smooth margin everywhere.
---------
---Test used, with U = (x - centre x) / AX, V = (y - centre y) / AY, W = (z - centre z) / AZ
---  inside when  U times U  plus  V times V  plus  W times W  is not more than 1
---------
---==== SETTINGS (change here) ====
---Centre = home + offset, in mm. Home is about x 274, y 14, z 231
-t_p.R_CX_OFF.value = 60.0
-t_p.R_CY_OFF.value = 10.0
-t_p.R_CZ_OFF.value = -50.0
---Semi axes in mm. With these values the region spans about
---x 234 to 434, y -86 to 134, z 106 to 256 (check these extreme points with the pendant)
-t_p.R_AX.value = 100.0
-t_p.R_AY.value = 110.0
-t_p.R_AZ.value = 75.0
---------
---==== CHECK ====
---X term
+--Input   t_p.NEXT       candidate TCP position (world frame, mm)
+--Output  t_p.I_INSIDE  1 inside the region, 0 outside (the step is skipped, the robot keeps working)
+--1) SPHERE. Centre = home + offset, inside when the distance from the centre is not more than R.
+--   Distances are compared squared, so no square root is needed.
+--2) EXTRA LIMITS on x, y, z, to cut the parts of the sphere you do not want (the table first).
+--SETTINGS, all in mm, world coordinates. Home is about x 274, y 14, z 231
+--Sphere centre forward and down from home, it covers home and all the pick and place points
+t_p.R_CX_OFF.value = 110.0
+t_p.R_CY_OFF.value = 0.0
+t_p.R_CZ_OFF.value = -110.0
+t_p.R_RAD.value = 200.0
+--Extra limits. Z_MIN 40 cuts the sphere at the table (lowest pick and place point is z 47)
+--X_MIN at home x (274) minus a small margin, so backward steps stop at home and never go toward the base
+t_p.R_X_MIN.value = 270.0
+t_p.R_X_MAX.value = 560.0
+t_p.R_Y_MIN.value = -450.0
+t_p.R_Y_MAX.value = 450.0
+t_p.R_Z_MIN.value = 40.0
+t_p.R_Z_MAX.value = 450.0
+--CHECK, every rule that is broken sets I_OUT to 1
+t_p.I_OUT.value = 0
+--Sphere. Distance from the centre along x, y, z, squared and summed
 t_p.R_U.value = t_p.NEXT.x - t_g.pose_home.x
 t_p.R_U.value = t_p.R_U.value - t_p.R_CX_OFF.value
-t_p.R_U.value = t_p.R_U.value / t_p.R_AX.value
 t_p.R_SUM.value = t_p.R_U.value * t_p.R_U.value
---Y term
 t_p.R_U.value = t_p.NEXT.y - t_g.pose_home.y
 t_p.R_U.value = t_p.R_U.value - t_p.R_CY_OFF.value
-t_p.R_U.value = t_p.R_U.value / t_p.R_AY.value
 t_p.R_SQ.value = t_p.R_U.value * t_p.R_U.value
 t_p.R_SUM.value = t_p.R_SUM.value + t_p.R_SQ.value
---Z term
 t_p.R_U.value = t_p.NEXT.z - t_g.pose_home.z
 t_p.R_U.value = t_p.R_U.value - t_p.R_CZ_OFF.value
-t_p.R_U.value = t_p.R_U.value / t_p.R_AZ.value
 t_p.R_SQ.value = t_p.R_U.value * t_p.R_U.value
 t_p.R_SUM.value = t_p.R_SUM.value + t_p.R_SQ.value
+t_p.R_SQ.value = t_p.R_RAD.value * t_p.R_RAD.value
+IF t_p.R_SUM.value > t_p.R_SQ.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+--Extra limits
+IF t_p.NEXT.x < t_p.R_X_MIN.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+IF t_p.NEXT.x > t_p.R_X_MAX.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+IF t_p.NEXT.y < t_p.R_Y_MIN.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+IF t_p.NEXT.y > t_p.R_Y_MAX.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+IF t_p.NEXT.z < t_p.R_Z_MIN.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
+IF t_p.NEXT.z > t_p.R_Z_MAX.value THEN
+    t_p.I_OUT.value = 1
+ENDIF
 --Result
 t_p.I_INSIDE.value = 0
-IF t_p.R_SUM.value <= 1.0 THEN
+IF t_p.I_OUT.value == 0 THEN
     t_p.I_INSIDE.value = 1
 ENDIF
 End;

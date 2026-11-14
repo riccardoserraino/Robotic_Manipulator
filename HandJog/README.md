@@ -8,7 +8,7 @@ PC (Python)                                      Robot (Estun, workspace handjog
 webcam -> hand_tracker -> gestures               Teleop_Gesti  (motion, load + Start this)
        -> robot_server (port 9500) <--- "REQ" --- Teleop_Comm   (socket, started by Teleop_Gesti)
                                    ---  "3"  --->      |
-                                                 Teleop_Region (ellipsoid check, CALLed by Teleop_Gesti)
+                                                 Teleop_Region (box check, CALLed)
 ```
 
 ## Folder
@@ -36,7 +36,7 @@ HandJog/
             │                       SETTINGS at the top: PC IP, port, step sizes, J5/J6 limits
             ├── Teleop_Comm.erp     socket program, started by Teleop_Gesti with RUN
             │                       (never start it by hand): REQ -> number -> I_CMD
-            ├── Teleop_Region.erp   working region: ellipsoid around home, called with CALL
+            ├── Teleop_Region.erp   working region: box limits, called with CALL
             │                       before every Cartesian step. SETTINGS at the top
             └── prjglobal.erd       project variables (English names, one per setting)
 ```
@@ -53,7 +53,7 @@ Move as in front of a mirror. If both hands give a command the right hand wins.
 | Right | index pointing left / right | `left` / `right` | +Y / -Y (step of 20 mm) |
 | Right | index pointing up / down | `up` / `down` | +Z / -Z |
 | Right | fist, thumb up / down | `forward` / `backward` | +X / -X |
-| Left | index pointing up / down | `j5_up` / `j5_down` | J5 +5 / -5 deg (tilts the gripper) |
+| Left | index pointing up / down | `j5_down` / `j5_up` | lifts / lowers the gripper (J5, 5 deg steps) |
 | Left | fist, thumb up / down | `j6_cw` / `j6_ccw` | J6 +10 / -10 deg (turns the gripper) |
 | Left | horns (index + pinky up) | `close` | close gripper (hold ~0.3 s) |
 | Left | open palm (five fingers) | `open` | open gripper (hold ~0.3 s) |
@@ -67,16 +67,8 @@ hand: the label must say `Right`. If it says `Left`, set `SWAP_HANDEDNESS = True
 Right/Left label comes from the model, so the fix is this flag, not removing the flip: removing
 it would also reverse every left/right command.)
 
-## 1. Python setup (once)
 
-Use the `walter` virtual environment of the whole repository: run `setup.bat` in the
-repository root, then `walter\Scripts\activate` (see *Setup* in the [main README](../README.md)).
-Then go to this folder:
-```bat
-cd HandJog\src
-```
-
-## 2. Three ways to run it
+## 1. Three ways to run it
 
 ### A. Python only (no Estun at all) - test gestures and protocol
 ```bat
@@ -101,7 +93,7 @@ simulated position.
 3. Start `python teleop_hands.py` first, then load and Start `Teleop_Gesti`.
 4. First runs: manual mode, low global speed, single step, E-stop at hand.
 
-## 3. IP / connection checklist
+## 2. IP / connection checklist
 
 | Check | Where | Value |
 |---|---|---|
@@ -113,26 +105,37 @@ simulated position.
 | `fake_robot.py` on another PC | `python fake_robot.py --ip <PC running teleop_hands>` | |
 | Pendant message *PC CONNECTION ERROR* | Python was not started first, wrong IP, or firewall | |
 
-## 4. Working region (ellipsoid)
+## 3. Working region
 
-`Teleop_Region.erp` accepts a step only if the new point is inside an ellipsoid fixed to the
-home pose (home is about x 274, y 14, z 231 mm):
+`Teleop_Region.erp` accepts a Cartesian step only if the new TCP point respects all these
+limits (world frame, mm). If not, the step is skipped and the robot keeps working: it just
+cannot go further in that direction.
 
-    ((x-cx)/AX)^2 + ((y-cy)/AY)^2 + ((z-cz)/AZ)^2 <= 1,   centre = home + (60, 10, -50) mm,
-    semi axes AX 100, AY 110, AZ 75 mm  ->  x 234..434, y -86..134, z 106..256
+| Limit | Default | Why |
+|---|---|---|
+| `R_X_MIN` .. `R_X_MAX` | 100 .. 560 | front / back walls of the box |
+| `R_Y_MIN` .. `R_Y_MAX` | -450 .. 450 | left / right walls |
+| `R_Z_MIN` .. `R_Z_MAX` | 40 .. 450 | table (lowest pick & place point is z 47) / ceiling |
 
-Why an ellipsoid and not a box: the corners of a box are the dangerous places (far + low =
-arm fully stretched, close to the base = wrist near the J1 axis). The ellipsoid cuts them and
-matches the box your team already tested (x 254..434, y -86..134, z 111..231) on its main
-extents. Home is inside with margin (0.81 of the limit).
-Note: home is in the upper part of the ellipsoid, where it is narrower; to reach far forward,
-go down a bit first.
-**Before using it on the real robot, jog to the six extreme points with the pendant** and change
-the SETTINGS in `Teleop_Region.erp` (and the same numbers in `fake_robot.py`) if needed.
-J5 / J6 use step counters instead (J5 within +-30 deg, J6 within +-180 deg from home), which keeps
-J5 away from its zero (the wrist singularity) - check the J5 value at home on the pendant.
+The region is a plain box. It contains home and all the pick & place poses
+(x 440..484, y -114..129, z 47..55). It is large on purpose: near its far corners the arm
+may not reach and the controller stops with its own alarm, so shrink a limit if that happens.
 
-## 5. First run on Estun - things to verify
+**How to set it:** jog the robot with the pendant (world frame, TCP) to the limits you want,
+read x, y, z on the pendant, and write them in the SETTINGS of `Teleop_Region.erp`. Then
+compile and Download (the values in the program are the ones used at every step).
+
+**Pendant WorkArea as a safety net (optional, recommended on the real robot):** the controller
+also has its own area monitoring (*User Application > Polyhedron Area*, or a standard BOX
+area): up to 4 polyhedra, each a polygon of taught XY vertices extruded between a Z start and
+a height, type *WorkArea*, monitoring the TCP. It is a hard limit: if the TCP leaves the
+WorkArea the controller **stops the program with alarm 6181**, and you have to deactivate the
+area, jog back inside and reactivate it. So use it slightly LARGER than the code region: the
+code keeps teleoperation smooth (steps simply refused at the border) and the pendant area only
+fires if something goes wrong. A WorkArea only watches the TCP position, so it does not
+protect J5 from its singularity: the J5 / J6 step counters in Teleop_Gesti stay needed.
+
+## 4. First run on Estun - things to verify
 
 These instructions were written by hand and not yet run on the controller. If the Editor marks
 one in red, delete it and insert it again from *Command Navigation* with the same parameters:

@@ -26,9 +26,9 @@ About left/right:
     MIRROR_VIEW flips the image like a mirror, so moving your hand to the right moves it
     to the right on screen too (natural for teleoperation).
     The model decides "Left"/"Right" from the hand shape and, by MediaPipe's convention,
-    expects exactly this mirrored (selfie) image, so with MIRROR_VIEW = True the label
-    should already be your real hand. If on your PC it is still inverted, set
-    SWAP_HANDEDNESS = True. Quick check: raise only your RIGHT hand, the label must say Right.
+    expects a mirrored (selfie) image. In practice, with the Tasks API + MIRROR_VIEW = True
+    the labels came out inverted on our webcam, hence SWAP_HANDEDNESS = True. If yours is
+    wrong, toggle it. Quick check: raise only your RIGHT hand, the label must say Right.
 """
 
 import sys
@@ -45,7 +45,7 @@ from mediapipe.tasks.python import vision
 CAMERA_INDEX = 0          # 0 = default webcam, 1 = external USB webcam, ...
 MAX_HANDS = 2             # right hand moves the robot, left hand wrist + gripper
 MIRROR_VIEW = True        # True = the window behaves like a mirror (recommended)
-SWAP_HANDEDNESS = False   # True only if, with your camera, Right and Left come out inverted
+SWAP_HANDEDNESS = True    # verified on this setup: with MIRROR_VIEW the raw labels are inverted
 MIN_CONFIDENCE = 0.5      # detection / tracking confidence (higher = fewer false hands)
 MODEL_PATH = Path(__file__).parent / "models" / "hand_landmarker.task"
 # =========================================================================================

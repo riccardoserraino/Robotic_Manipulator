@@ -13,7 +13,7 @@ IF t_p.I_SockRet.value == 0 THEN
     SetRtInfo{msg="TELEOP CONNECTED TO PC",eid=70003}
     t_p.I_CommState.value = 1
 ELSE
-    SetRtInfo{msg="PC CONNECTION ERROR - check PC IP, port, firewall",eid=70002}
+    SetRtInfo{msg="PC CONNECTION ERROR",eid=70002}
     t_p.TELEOP.value = 0
     t_p.I_CommState.value = -1
 ENDIF

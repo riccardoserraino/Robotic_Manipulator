@@ -7,7 +7,7 @@ RIGHT hand = Cartesian jog of the tool (MovL steps on the robot)
     fist + THUMB UP / THUMB DOWN    -> forward / backward (robot +X / -X)
 
 LEFT hand = wrist joints and gripper
-    index pointing UP / DOWN        -> j5_up / j5_down   (J5, tilts the gripper)
+    index pointing UP / DOWN        -> lifts / lowers the gripper (J5)
     fist + THUMB UP / THUMB DOWN    -> j6_cw / j6_ccw    (J6, rotates the gripper)
     HORNS (index + pinky up)        -> close             (close the gripper)
     OPEN PALM (all five fingers)    -> open              (open the gripper, hold it a moment)
@@ -41,8 +41,8 @@ RIGHT_HAND = {                      # gesture -> command word, RIGHT hand
     "thumb_down": "backward",
 }
 LEFT_HAND = {                       # gesture -> command word, LEFT hand
-    "index_up": "j5_up",
-    "index_down": "j5_down",
+    "index_up": "j5_down",       # swapped: on our robot j5_down is the one that lifts the gripper
+    "index_down": "j5_up",
     "thumb_up": "j6_cw",
     "thumb_down": "j6_ccw",
     "horns": "close",
