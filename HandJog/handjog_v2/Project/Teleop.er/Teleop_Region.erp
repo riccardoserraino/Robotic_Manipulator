@@ -1,0 +1,221 @@
+Start:
+--TELEOP WORKING REGION. CALLed by Teleop_Gesti before every Cartesian step, never start it by hand.
+--Input   t_p.NEXT      the TCP position the robot wants to go to (base frame, mm)
+--Output  t_p.I_INSIDE  1 step allowed, 0 step refused (the robot stays still and keeps working)
+--WORKFLOW, one STEP per block below
+--STEP 0 COPY         NEXT.x, NEXT.y, NEXT.z into the plain numbers R_X, R_Y, R_Z
+--STEP 1 ELLIPSOID    is the point inside the ellipsoid (exact, then grown by R_TOL)
+--STEP 2 BOX          is the point inside the box (exact, then grown by R_TOL)
+--STEP 3 INTERSECTION region = ellipsoid AND box
+--STEP 4 HARD LIMITS  table, near base, too far, wrist close. No tolerance on these
+--STEP 5 RESULT       allowed = inside the grown region AND no hard limit broken, then the log
+--Same numbers and same logic as HandJog/src/plot_region.py, run it after every change.
+--SETTINGS, mm, base frame
+--Ellipsoid centre and SEMI axes (half of the full axis lengths)
+t_p.R_EX_CX.value = 300.0
+t_p.R_EX_CY.value = 0.0
+t_p.R_EX_CZ.value = 350.0
+t_p.R_EX_AX.value = 400.0
+t_p.R_EX_AY.value = 400.0
+t_p.R_EX_AZ.value = 600.0
+--Box, min and max on each axis
+t_p.R_BX_XMIN.value = 150.0
+t_p.R_BX_XMAX.value = 550.0
+t_p.R_BX_YMIN.value = -290.0
+t_p.R_BX_YMAX.value = 290.0
+t_p.R_BX_ZMIN.value = 30.0
+t_p.R_BX_ZMAX.value = 800.0
+--Tolerance, how far outside ellipsoid and box a step is still allowed
+t_p.R_TOL.value = 30.0
+--Hard limits (ER4-550 manual figure 3-3, tool 90 mm along tool z)
+--Z_FLOOR lowest TCP z. BASE_R min horizontal distance TCP to the J1 axis.
+--REACH_MAX and REACH_MIN max and min distance wrist centre to J2 (robot 555 and 147).
+--J2_Z shoulder height above the base.
+--WRIST_UP height of the wrist centre above the TCP when the tool points down,
+--80.3 (wrist centre to flange) plus 90 (our tool) = 170.3
+t_p.R_Z_FLOOR.value = 30.0
+t_p.R_BASE_R.value = 150.0
+t_p.R_REACH_MAX.value = 530.0
+t_p.R_REACH_MIN.value = 212.0
+t_p.R_J2_Z.value = 350.0
+t_p.R_WRIST_UP.value = 170.3
+--STEP 0 COPY. format() accepts only .value variables, so we work on R_X, R_Y, R_Z
+t_p.R_X.value = t_p.NEXT.x
+t_p.R_Y.value = t_p.NEXT.y
+t_p.R_Z.value = t_p.NEXT.z
+--STEP 1 ELLIPSOID. Formula  (dx/ax)^2 + (dy/ay)^2 + (dz/az)^2  not more than 1 means inside.
+--For each axis   R_D = distance from the centre   R_T = (R_D / semi axis) squared
+--R_E1 is the sum with the exact semi axes, R_E2 the sum with the semi axes plus R_TOL.
+--1a exact ellipsoid, x then y then z
+t_p.R_E1.value = 0.0
+t_p.R_D.value = t_p.R_X.value - t_p.R_EX_CX.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_EX_AX.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E1.value = t_p.R_E1.value + t_p.R_T.value
+t_p.R_D.value = t_p.R_Y.value - t_p.R_EX_CY.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_EX_AY.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E1.value = t_p.R_E1.value + t_p.R_T.value
+t_p.R_D.value = t_p.R_Z.value - t_p.R_EX_CZ.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_EX_AZ.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E1.value = t_p.R_E1.value + t_p.R_T.value
+--1b grown ellipsoid, same but every semi axis R_S = semi axis + R_TOL
+t_p.R_E2.value = 0.0
+t_p.R_D.value = t_p.R_X.value - t_p.R_EX_CX.value
+t_p.R_S.value = t_p.R_EX_AX.value + t_p.R_TOL.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_S.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E2.value = t_p.R_E2.value + t_p.R_T.value
+t_p.R_D.value = t_p.R_Y.value - t_p.R_EX_CY.value
+t_p.R_S.value = t_p.R_EX_AY.value + t_p.R_TOL.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_S.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E2.value = t_p.R_E2.value + t_p.R_T.value
+t_p.R_D.value = t_p.R_Z.value - t_p.R_EX_CZ.value
+t_p.R_S.value = t_p.R_EX_AZ.value + t_p.R_TOL.value
+t_p.R_T.value = t_p.R_D.value / t_p.R_S.value
+t_p.R_T.value = t_p.R_T.value * t_p.R_T.value
+t_p.R_E2.value = t_p.R_E2.value + t_p.R_T.value
+--1c flags, I_ELL 1 inside the exact ellipsoid, I_ELLT 1 inside the grown ellipsoid
+t_p.I_ELL.value = 0
+IF t_p.R_E1.value <= 1.0 THEN
+    t_p.I_ELL.value = 1
+ENDIF
+t_p.I_ELLT.value = 0
+IF t_p.R_E2.value <= 1.0 THEN
+    t_p.I_ELLT.value = 1
+ENDIF
+--STEP 2 BOX. Start inside (1), every side that is crossed sets it outside (0).
+--2a exact box, I_BOX
+t_p.I_BOX.value = 1
+IF t_p.R_X.value < t_p.R_BX_XMIN.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+IF t_p.R_X.value > t_p.R_BX_XMAX.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+IF t_p.R_Y.value < t_p.R_BX_YMIN.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+IF t_p.R_Y.value > t_p.R_BX_YMAX.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+IF t_p.R_Z.value < t_p.R_BX_ZMIN.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+IF t_p.R_Z.value > t_p.R_BX_ZMAX.value THEN
+    t_p.I_BOX.value = 0
+ENDIF
+--2b grown box, I_BOXT. Each side moved out by R_TOL, R_LO = min - TOL, R_HI = max + TOL
+t_p.I_BOXT.value = 1
+t_p.R_LO.value = t_p.R_BX_XMIN.value - t_p.R_TOL.value
+t_p.R_HI.value = t_p.R_BX_XMAX.value + t_p.R_TOL.value
+IF t_p.R_X.value < t_p.R_LO.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+IF t_p.R_X.value > t_p.R_HI.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+t_p.R_LO.value = t_p.R_BX_YMIN.value - t_p.R_TOL.value
+t_p.R_HI.value = t_p.R_BX_YMAX.value + t_p.R_TOL.value
+IF t_p.R_Y.value < t_p.R_LO.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+IF t_p.R_Y.value > t_p.R_HI.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+t_p.R_LO.value = t_p.R_BX_ZMIN.value - t_p.R_TOL.value
+t_p.R_HI.value = t_p.R_BX_ZMAX.value + t_p.R_TOL.value
+IF t_p.R_Z.value < t_p.R_LO.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+IF t_p.R_Z.value > t_p.R_HI.value THEN
+    t_p.I_BOXT.value = 0
+ENDIF
+--STEP 3 INTERSECTION. THIS IS WHERE THE WORKING REGION IS MADE.
+--Inside the region only if inside the ellipsoid AND inside the box (two nested IF).
+--I_IN exact shapes, I_INT grown shapes (exact region plus tolerance band)
+t_p.I_IN.value = 0
+IF t_p.I_ELL.value == 1 THEN
+    IF t_p.I_BOX.value == 1 THEN
+        t_p.I_IN.value = 1
+    ENDIF
+ENDIF
+t_p.I_INT.value = 0
+IF t_p.I_ELLT.value == 1 THEN
+    IF t_p.I_BOXT.value == 1 THEN
+        t_p.I_INT.value = 1
+    ENDIF
+ENDIF
+--STEP 4 HARD LIMITS. I_REASON 0 ok, 1 out region, 2 too far, 3 near base, 4 table,
+--5 wrist close. Checked in this order, the last broken one is kept.
+--Distances are compared squared, so no square root is needed.
+t_p.I_REASON.value = 0
+IF t_p.I_INT.value == 0 THEN
+    t_p.I_REASON.value = 1
+    t_p.S_REASON.value = "OUT REGION"
+ENDIF
+--4a near base. R_R2 = x*x + y*y = horizontal distance from the J1 axis, squared
+t_p.R_R2.value = t_p.R_X.value * t_p.R_X.value
+t_p.R_SQ.value = t_p.R_Y.value * t_p.R_Y.value
+t_p.R_R2.value = t_p.R_R2.value + t_p.R_SQ.value
+t_p.R_SQ.value = t_p.R_BASE_R.value * t_p.R_BASE_R.value
+IF t_p.R_R2.value < t_p.R_SQ.value THEN
+    t_p.I_REASON.value = 3
+    t_p.S_REASON.value = "NEAR BASE"
+ENDIF
+--4b reach. The arm reach is measured at the WRIST CENTRE (where J4, J5, J6 cross), not at the TCP.
+--Wrist centre = same x and y as the TCP, height R_WZ = TCP z + R_WRIST_UP.
+--R_H = height of the wrist centre above J2. R_D2 = distance wrist centre to J2, squared.
+t_p.R_WZ.value = t_p.R_Z.value + t_p.R_WRIST_UP.value
+t_p.R_H.value = t_p.R_WZ.value - t_p.R_J2_Z.value
+t_p.R_SQ.value = t_p.R_H.value * t_p.R_H.value
+t_p.R_D2.value = t_p.R_R2.value + t_p.R_SQ.value
+t_p.R_SQ.value = t_p.R_REACH_MAX.value * t_p.R_REACH_MAX.value
+IF t_p.R_D2.value > t_p.R_SQ.value THEN
+    t_p.I_REASON.value = 2
+    t_p.S_REASON.value = "TOO FAR"
+ENDIF
+t_p.R_SQ.value = t_p.R_REACH_MIN.value * t_p.R_REACH_MIN.value
+IF t_p.R_D2.value < t_p.R_SQ.value THEN
+    t_p.I_REASON.value = 5
+    t_p.S_REASON.value = "WRIST CLOSE"
+ENDIF
+--4c table
+IF t_p.R_Z.value < t_p.R_Z_FLOOR.value THEN
+    t_p.I_REASON.value = 4
+    t_p.S_REASON.value = "TABLE"
+ENDIF
+--STEP 5 RESULT
+t_p.I_INSIDE.value = 0
+IF t_p.I_REASON.value == 0 THEN
+    t_p.I_INSIDE.value = 1
+ENDIF
+--5a log of a refused step, only when the reason changes, with the refused TCP position
+t_p.I_NEW.value = 1
+IF t_p.I_REASON.value == t_p.I_LASTR.value THEN
+    t_p.I_NEW.value = 0
+ENDIF
+IF t_p.I_REASON.value > 0 THEN
+    IF t_p.I_NEW.value == 1 THEN
+        t_p.S_LOG.value = format ( "%s x%.0f y%.0f z%.0f" , t_p.S_REASON.value , t_p.R_X.value , t_p.R_Y.value , t_p.R_Z.value )
+        SetRtInfo{msg=t_p.S_LOG.value,eid=70003}
+    ENDIF
+ENDIF
+--5b log when the step is allowed only thanks to the tolerance (I_INSIDE 1 and I_IN 0)
+t_p.I_BAND.value = 0
+IF t_p.I_INSIDE.value == 1 THEN
+    IF t_p.I_IN.value == 0 THEN
+        t_p.I_BAND.value = 1
+    ENDIF
+ENDIF
+IF t_p.I_BAND.value == 1 THEN
+    IF t_p.I_LASTB.value == 0 THEN
+        t_p.S_LOG.value = format ( "TOL BAND x%.0f y%.0f z%.0f" , t_p.R_X.value , t_p.R_Y.value , t_p.R_Z.value )
+        SetRtInfo{msg=t_p.S_LOG.value,eid=70003}
+    ENDIF
+ENDIF
+t_p.I_LASTR.value = t_p.I_REASON.value
+t_p.I_LASTB.value = t_p.I_BAND.value
+End;

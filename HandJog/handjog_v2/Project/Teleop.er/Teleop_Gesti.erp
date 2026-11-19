@@ -9,30 +9,36 @@ Start:
 --Cartesian step = move the absolute target t_g.TARGET by R_STEP mm, MovL with blending C10.
 --WaitFinish 40 lets the program queue the next step while the robot is at 40 percent
 --of the current one, so steps join smoothly but never pile up.
---Joint step = rotate J5 or J6 by a few degrees (MovJRel), then copy the real robot pose
---into t_g.TARGET so the next Cartesian step keeps the new tool orientation.
---==== SETTINGS (change here) ====
+--Joint step = move the absolute joint target t_p.JTARGET by a few degrees on J5 or J6,
+--MovJ with blending C10 and WaitFinish 40, exactly like the Cartesian steps, so it is fluid.
+--The real pose is read again (GetCurAPos or GetCurCPos) only when switching between
+--Cartesian and joint jog, never at every step.
+--SETTINGS (change here)
 --IP of the PC running Python. Virtual controller "127.0.0.1", real robot = PC IP on the robot network
 t_p.S_PC_IP.value = "127.0.0.1"
 t_p.I_PC_PORT.value = 9500
 --Cartesian step in mm
 t_p.R_STEP.value = 20.0
---Joint steps in degrees and how many steps are allowed each side of home
---J5 6 x 5 deg = 30 deg, J6 18 x 10 deg = 180 deg
-t_p.R_J5_STEP.value = 5.0
-t_p.R_J6_STEP.value = 10.0
-t_p.N5_MIN.value = -6
-t_p.N5_MAX.value = 6
-t_p.N6_MIN.value = -18
-t_p.N6_MAX.value = 18
---==== START ====
-t_p.I_N5.value = 0
-t_p.I_N6.value = 0
+--Joint jog. Step in degrees per cycle (bigger = faster), speed preset in the MovJ line (t_s.V30)
+t_p.R_J5_STEP.value = 3.0
+t_p.R_J6_STEP.value = 6.0
+--Absolute joint limits in degrees (robot range J5 -120 to 120, J6 -360 to 360)
+--J5_SING keeps J5 away from 0, where J4 and J6 align (wrist singularity, the robot would stop)
+t_p.R_J5_MIN.value = -110.0
+t_p.R_J5_MAX.value = 110.0
+t_p.R_J5_SING.value = 15.0
+t_p.R_J6_MIN.value = -350.0
+t_p.R_J6_MAX.value = 350.0
+--START
+t_p.R_J5_SNEG.value = -t_p.R_J5_SING.value
+--I_MODE 0 nothing yet, 1 Cartesian jog, 2 joint jog
+t_p.I_MODE.value = 0
+t_p.I_LASTR.value = 0
+t_p.I_LASTB.value = 0
 t_p.I_CMD.value = 0
 t_p.I_CommState.value = 0
 t_p.TELEOP.value = 1
 t_p.I_GRIP.value = 1
-t_p.I_WARN.value = 0
 MovJ{P=t_g.pose_home}
 SetDO{IO=t_g.Gripper,Val=1}
 Wait{T=500}
@@ -43,7 +49,7 @@ RUN Teleop_Comm
 WHILE t_p.I_CommState.value == 0 DO
     Wait{T=50}
 ENDWHILE
---==== MAIN LOOP ====
+--MAIN LOOP
 WHILE t_p.TELEOP.value == 1 DO
     --Copy the shared command once, Teleop_Comm can change it at any moment
     t_p.I_MOVE.value = t_p.I_CMD.value
@@ -73,64 +79,89 @@ WHILE t_p.TELEOP.value == 1 DO
     --Build the candidate target, move only if it is inside the working region
     IF t_p.I_MOVE.value >= 1 THEN
         IF t_p.I_MOVE.value <= 6 THEN
+            --Coming from joint jog the target is old, read the real pose once
+            IF t_p.I_MODE.value == 2 THEN
+                WaitFinish{Percent=100}
+                GetCurCPos{P=t_g.TARGET}
+            ENDIF
+            t_p.I_MODE.value = 1
             t_p.NEXT = t_g.TARGET
             t_p.NEXT.x = t_g.TARGET.x + t_p.R_DX.value
             t_p.NEXT.y = t_g.TARGET.y + t_p.R_DY.value
             t_p.NEXT.z = t_g.TARGET.z + t_p.R_DZ.value
+            --Teleop_Region decides and prints on the pendant why a step is refused
             CALL Teleop_Region
             IF t_p.I_INSIDE.value == 1 THEN
                 t_g.TARGET = t_p.NEXT
                 MovL{P=t_g.TARGET,V=t_s.V100,B="ABSOLUTE",C=t_s.C10}
                 WaitFinish{Percent=40}
                 t_p.I_MOVED.value = 1
-                t_p.I_WARN.value = 0
-            ELSE
-                --Outside the region, show the message only once
-                IF t_p.I_WARN.value == 0 THEN
-                    SetRtInfo{msg="LIMIT - outside working region",eid=70003}
-                    t_p.I_WARN.value = 1
-                ENDIF
             ENDIF
         ENDIF
     ENDIF
-    --2) Joint step for the wrist (J5) and the gripper rotation (J6), with step counters
+    --2) Joint step for the wrist (J5) and the gripper rotation (J6)
     t_p.I_JOINT.value = 0
-    t_p.D_JOINT.da5 = 0.0
-    t_p.D_JOINT.da6 = 0.0
+    t_p.R_J5D.value = 0.0
+    t_p.R_J6D.value = 0.0
     IF t_p.I_MOVE.value == 11 THEN
-        IF t_p.I_N5.value < t_p.N5_MAX.value THEN
-            t_p.D_JOINT.da5 = t_p.R_J5_STEP.value
-            t_p.I_N5.value = t_p.I_N5.value + 1
-            t_p.I_JOINT.value = 1
-        ENDIF
+        t_p.R_J5D.value = t_p.R_J5_STEP.value
+        t_p.I_JOINT.value = 1
     ENDIF
     IF t_p.I_MOVE.value == 12 THEN
-        IF t_p.I_N5.value > t_p.N5_MIN.value THEN
-            t_p.D_JOINT.da5 = -t_p.R_J5_STEP.value
-            t_p.I_N5.value = t_p.I_N5.value - 1
-            t_p.I_JOINT.value = 1
-        ENDIF
+        t_p.R_J5D.value = -t_p.R_J5_STEP.value
+        t_p.I_JOINT.value = 1
     ENDIF
     IF t_p.I_MOVE.value == 13 THEN
-        IF t_p.I_N6.value < t_p.N6_MAX.value THEN
-            t_p.D_JOINT.da6 = t_p.R_J6_STEP.value
-            t_p.I_N6.value = t_p.I_N6.value + 1
-            t_p.I_JOINT.value = 1
-        ENDIF
+        t_p.R_J6D.value = t_p.R_J6_STEP.value
+        t_p.I_JOINT.value = 1
     ENDIF
     IF t_p.I_MOVE.value == 14 THEN
-        IF t_p.I_N6.value > t_p.N6_MIN.value THEN
-            t_p.D_JOINT.da6 = -t_p.R_J6_STEP.value
-            t_p.I_N6.value = t_p.I_N6.value - 1
-            t_p.I_JOINT.value = 1
-        ENDIF
+        t_p.R_J6D.value = -t_p.R_J6_STEP.value
+        t_p.I_JOINT.value = 1
     ENDIF
     IF t_p.I_JOINT.value == 1 THEN
-        MovJRel{P=t_p.D_JOINT,V=t_s.V30}
-        --Wait for the end of the rotation, then read the real pose into the target
-        WaitFinish{Percent=100}
-        GetCurCPos{P=t_g.TARGET}
-        t_p.I_MOVED.value = 1
+        --Coming from Cartesian jog (or first time), read the real joint angles once
+        IF t_p.I_MODE.value < 2 THEN
+            WaitFinish{Percent=100}
+            GetCurAPos{P=t_p.JTARGET}
+        ENDIF
+        t_p.I_MODE.value = 2
+        --New joint values, refused if outside the limits or inside the J5 singular band
+        t_p.R_J5N.value = t_p.JTARGET.a5 + t_p.R_J5D.value
+        t_p.R_J6N.value = t_p.JTARGET.a6 + t_p.R_J6D.value
+        t_p.I_JOK.value = 1
+        IF t_p.R_J5N.value > t_p.R_J5_MAX.value THEN
+            t_p.I_JOK.value = 0
+        ENDIF
+        IF t_p.R_J5N.value < t_p.R_J5_MIN.value THEN
+            t_p.I_JOK.value = 0
+        ENDIF
+        IF t_p.R_J5N.value < t_p.R_J5_SING.value THEN
+            IF t_p.R_J5N.value > t_p.R_J5_SNEG.value THEN
+                t_p.I_JOK.value = 0
+            ENDIF
+        ENDIF
+        IF t_p.R_J6N.value > t_p.R_J6_MAX.value THEN
+            t_p.I_JOK.value = 0
+        ENDIF
+        IF t_p.R_J6N.value < t_p.R_J6_MIN.value THEN
+            t_p.I_JOK.value = 0
+        ENDIF
+        IF t_p.I_JOK.value == 1 THEN
+            t_p.JTARGET.a5 = t_p.R_J5N.value
+            t_p.JTARGET.a6 = t_p.R_J6N.value
+            MovJ{P=t_p.JTARGET,V=t_s.V30,B="ABSOLUTE",C=t_s.C10}
+            WaitFinish{Percent=40}
+            t_p.I_MOVED.value = 1
+            t_p.I_LASTR.value = 0
+        ELSE
+            --Show the joint limit message only once
+            IF t_p.I_LASTR.value < 9 THEN
+                t_p.S_LOG.value = format ( "J LIMIT J5 %.0f J6 %.0f" , t_p.R_J5N.value , t_p.R_J6N.value )
+                SetRtInfo{msg=t_p.S_LOG.value,eid=70003}
+                t_p.I_LASTR.value = 9
+            ENDIF
+        ENDIF
     ENDIF
     --3) Gripper, only when the state really changes (SetDO and Wait stop the motion)
     IF t_p.I_MOVE.value == 9 THEN
@@ -152,7 +183,7 @@ WHILE t_p.TELEOP.value == 1 DO
         Wait{T=20}
     ENDIF
 ENDWHILE
---==== END ====
+--END
 --Teleop_Comm closes the socket by itself when TELEOP becomes 0
 MovJ{P=t_g.pose_home}
 End;
