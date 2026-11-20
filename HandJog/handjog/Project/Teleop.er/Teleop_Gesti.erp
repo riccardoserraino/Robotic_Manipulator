@@ -2,24 +2,24 @@ Start:
 --TELEOP V1 MOTION PROGRAM. Load THIS program and press Start.
 --It starts Teleop_Comm in parallel (RUN, socket only, never start it by hand)
 --and asks Teleop_Region (CALL) if every new Cartesian target is inside the working region.
---Command codes written by Teleop_Comm in t_p.I_CMD
+--Command codes written by Teleop_Comm in P:I_CMD
 --1 left (+Y)  2 right (-Y)  3 forward (+X)  4 backward (-X)  5 up (+Z)  6 down (-Z)
 --7 stop  8 quit  9 open gripper  10 close gripper
 --11 J5 plus  12 J5 minus  13 J6 plus  14 J6 minus  0 nothing received (timeout)
---Cartesian step = move the absolute target t_g.TARGET by R_STEP mm, MovL with blending C10.
+--Cartesian step = move the absolute target G:TARGET by R_STEP mm, MovL with blending C10.
 --WaitFinish 40 lets the program queue the next step while the robot is at 40 percent
 --of the current one, so steps join smoothly but never pile up.
---Joint step = move the absolute joint target t_p.JTARGET by a few degrees on J5 or J6,
+--Joint step = move the absolute joint target P:JTARGET by a few degrees on J5 or J6,
 --MovJ with blending C10 and WaitFinish 40, exactly like the Cartesian steps, so it is fluid.
 --The real pose is read again (GetCurAPos or GetCurCPos) only when switching between
 --Cartesian and joint jog, never at every step.
 --SETTINGS (change here)
---IP of the PC running Python. Virtual controller "127.0.0.1", real robot = PC IP on the robot network
+--IP of the PC running Python. Virtual controller "127.0.0.1", real robot = PC IP on the robot network 192.168.6.104
 t_p.S_PC_IP.value = "127.0.0.1"
 t_p.I_PC_PORT.value = 9500
 --Cartesian step in mm
 t_p.R_STEP.value = 20.0
---Joint jog. Step in degrees per cycle (bigger = faster), speed preset in the MovJ line (t_s.V30)
+--Joint jog. Step in degrees per cycle (bigger = faster), speed preset in the MovJ line (S:V30)
 t_p.R_J5_STEP.value = 3.0
 t_p.R_J6_STEP.value = 6.0
 --Absolute joint limits in degrees (robot range J5 -120 to 120, J6 -360 to 360)

@@ -3,9 +3,9 @@ Start:
 --Started in parallel by Teleop_Gesti with RUN. Never load or start it by hand.
 --Socket only, NO motion here (programs started with RUN cannot move the robot).
 --Every cycle (about 200 ms)
---  robot sends "REQ", the PC answers with ONE number (the command code, see Teleop_Gesti)
---  the number is written in t_p.I_CMD, which Teleop_Gesti reads
---  timeout or invalid answer gives 0, so the robot stops
+--robot sends "REQ", the PC answers with ONE number (the command code, see Teleop_Gesti)
+--the number is written in t_p.I_CMD, which Teleop_Gesti reads
+--timeout or invalid answer gives 0, so the robot stops
 --t_p.I_CommState  0 connecting, 1 connected, -1 connection error
 --On quit (8) or on a connection error it sets TELEOP to 0 and closes the socket.
 SocketCreate{socketName=t_p.Com_PC,IP=t_p.S_PC_IP.value,Port=t_p.I_PC_PORT.value,Ret=t_p.I_SockRet}

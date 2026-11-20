@@ -1,14 +1,14 @@
 2={}
 3={}
 4={}
-5={}
+5={Teleop|I_CMD,}
 6={}
 7={}
 8={}
-9={}
+9={|GL|TARGET by R_STEP mm,}
 10={}
 11={}
-12={}
+12={Teleop|JTARGET by a few degrees on J5 or J6,}
 13={}
 14={}
 15={}
@@ -42,7 +42,7 @@
 43={|GL|Gripper,}
 44={}
 45={}
-46={|GL|TARGET,|GL|pose_home,}
+46={|GL|TARGET = G,}
 47={}
 48={Teleop|@Teleop_Comm,}
 49={Teleop|I_CommState,}
@@ -84,15 +84,15 @@
 85={|GL|TARGET,}
 86={}
 87={Teleop|I_MODE,}
-88={Teleop|NEXT,|GL|TARGET,}
-89={Teleop|NEXT,|GL|TARGET,Teleop|R_DX,}
-90={Teleop|NEXT,|GL|TARGET,Teleop|R_DY,}
-91={Teleop|NEXT,|GL|TARGET,Teleop|R_DZ,}
+88={Teleop|NEXT = G,}
+89={|GL|TARGET,Teleop|NEXT,Teleop|R_DX,}
+90={|GL|TARGET,Teleop|NEXT,Teleop|R_DY,}
+91={|GL|TARGET,Teleop|NEXT,Teleop|R_DZ,}
 92={}
 93={Teleop|@Teleop_Region,}
 94={Teleop|I_INSIDE,}
-95={|GL|TARGET,Teleop|NEXT,}
-96={|GL|TARGET,|GL|V100,|GL|C10,}
+95={Teleop|TARGET = P,}
+96={|GL|TARGET,}
 97={}
 98={Teleop|I_MOVED,}
 99={}
@@ -149,7 +149,7 @@
 150={Teleop|I_JOK,}
 151={Teleop|JTARGET,Teleop|R_J5N,}
 152={Teleop|JTARGET,Teleop|R_J6N,}
-153={Teleop|JTARGET,|GL|V30,|GL|C10,}
+153={Teleop|JTARGET,}
 154={}
 155={Teleop|I_MOVED,}
 156={Teleop|I_LASTR,}

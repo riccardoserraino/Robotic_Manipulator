@@ -38,10 +38,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # ==== SETTINGS (same values as Teleop_Region.erp) ========================================
-ELL_CENTRE = (300.0, 0.0, 350.0)        # R_EX_CX, R_EX_CY, R_EX_CZ
-ELL_SEMI = (400.0, 400.0, 600.0)       # R_EX_AX, R_EX_AY, R_EX_AZ  (half of 800, 500, 500)
-BOX_MIN = (150.0, -290.0, 30.0)        # R_BX_XMIN, R_BX_YMIN, R_BX_ZMIN
-BOX_MAX = (550.0, 290.0, 800.0)        # R_BX_XMAX, R_BX_YMAX, R_BX_ZMAX
+ELL_CENTRE = (300.0, 0.0, 310.0)        # R_EX_CX, R_EX_CY, R_EX_CZ
+ELL_SEMI = (375.0, 350.0, 500.0)       # R_EX_AX, R_EX_AY, R_EX_AZ  (half of 800, 500, 500)
+BOX_MIN = (150.0, -270.0, 30.0)        # R_BX_XMIN, R_BX_YMIN, R_BX_ZMIN
+BOX_MAX = (550.0, 270.0, 650.0)        # R_BX_XMAX, R_BX_YMAX, R_BX_ZMAX
 TOL = 30.0                             # R_TOL       extra margin around ellipsoid and box
 Z_FLOOR = 30.0                         # R_Z_FLOOR   lowest TCP z (table)
 BASE_R = 150.0                         # R_BASE_R    min horizontal distance TCP - J1 axis

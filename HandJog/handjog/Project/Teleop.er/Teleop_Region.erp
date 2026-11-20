@@ -1,7 +1,7 @@
 Start:
 --TELEOP WORKING REGION. CALLed by Teleop_Gesti before every Cartesian step, never start it by hand.
---Input   t_p.NEXT      the TCP position the robot wants to go to (base frame, mm)
---Output  t_p.I_INSIDE  1 step allowed, 0 step refused (the robot stays still and keeps working)
+--Input   P:NEXT      the TCP position the robot wants to go to (base frame, mm)
+--Output  P:I_INSIDE  1 step allowed, 0 step refused (the robot stays still and keeps working)
 --WORKFLOW, one STEP per block below
 --STEP 0 COPY         NEXT.x, NEXT.y, NEXT.z into the plain numbers R_X, R_Y, R_Z
 --STEP 1 ELLIPSOID    is the point inside the ellipsoid (exact, then grown by R_TOL)
@@ -148,7 +148,7 @@ IF t_p.I_ELLT.value == 1 THEN
         t_p.I_INT.value = 1
     ENDIF
 ENDIF
---STEP 4 HARD LIMITS. I_REASON 0 ok, 1 out region, 2 too far, 3 near base, 4 table,
+--STEP 4 HARD LIMITS. I_REASON 0 ok, 1 out region, 2 too far, 3 near base, 4 worktable,
 --5 wrist close. Checked in this order, the last broken one is kept.
 --Distances are compared squared, so no square root is needed.
 t_p.I_REASON.value = 0
@@ -185,7 +185,7 @@ ENDIF
 --4c table
 IF t_p.R_Z.value < t_p.R_Z_FLOOR.value THEN
     t_p.I_REASON.value = 4
-    t_p.S_REASON.value = "TABLE"
+    t_p.S_REASON.value = "WORKTABLE"
 ENDIF
 --STEP 5 RESULT
 t_p.I_INSIDE.value = 0

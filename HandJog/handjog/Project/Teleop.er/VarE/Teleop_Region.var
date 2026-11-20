@@ -1,6 +1,6 @@
 2={}
-3={}
-4={}
+3={Teleop|NEXT      the TCP position the robot wants to go to (base frame,}
+4={Teleop|I_INSIDE  1 step allowed,}
 5={}
 6={}
 7={}
